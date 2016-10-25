@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/bash -e
 
-### Add the New Relic apt repository and install the daemon
+### Add the New Relic repository and install the daemon
 if [ -f /etc/redhat-release ]
 then
 	rpm -Uvh https://download.newrelic.com/pub/newrelic/el5/i386/newrelic-repo-5-3.noarch.rpm
@@ -22,3 +22,5 @@ sed -i -r "s/#?hostname=(\")?.*(\")?/hostname=\"$2\"/g" /etc/newrelic/nrsysmond.
 
 ### Start New Relic service - User "restart" to update config if already running
 /etc/init.d/newrelic-sysmond restart
+
+exit 0

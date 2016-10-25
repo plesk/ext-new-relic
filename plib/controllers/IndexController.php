@@ -1,4 +1,5 @@
 <?php
+
 // Copyright 1999-2016. Parallels IP Holdings GmbH.
 
 class IndexController extends pm_Controller_Action
@@ -32,6 +33,7 @@ class IndexController extends pm_Controller_Action
         $form->addElement('description', 'server_types', ['description' => $this->lmsg('form_product_types'), 'escape' => false]);
         $this->installationType('servers', $form);
         $this->installationType('apm', $form);
+        $form->addElement('checkbox', 'reboot', ['label' => $this->lmsg('form_reboot_server'), 'value' => '']);
         $form->addControlButtons(['cancelLink' => pm_Context::getModulesListUrl(),]);
 
         // Process the form - save the license key and run the installation scripts
@@ -57,11 +59,24 @@ class IndexController extends pm_Controller_Action
                 }
 
                 $this->_status->addMessage('info', $this->lmsg('message_success'));
+
+                // Reboot
+                if ($form->getValue('reboot')) {
+                    $this->rebootServer();
+                }
+
                 $this->_helper->json(['redirect' => pm_Context::getBaseUrl()]);
             }
         }
 
         $this->view->form = $form;
+    }
+
+    private function rebootServer()
+    {
+        $request = "<server><reboot/></server>";
+
+        pm_ApiRpc::getService()->call($request, 'admin');
     }
 
     private function runInstallation($type, $license_key, $server_name = '')

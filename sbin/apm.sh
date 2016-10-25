@@ -1,11 +1,11 @@
-#!/usr/bin/env bash
+#!/bin/bash -e
 
-### Add the New Relic apt repository and install the daemon
-### TODO - Add CentOs / Red Hat
-if [ ! -f /etc/redhat-release ]
+### Add the New Relic repository and install PHP service
+if [ -f /etc/redhat-release ]
 then
-	wget -O - https://download.newrelic.com/548C16BF.gpg | sudo apt-key add -
-
+    rpm -Uvh http://yum.newrelic.com/pub/newrelic/el5/i386/newrelic-repo-5-3.noarch.rpm
+    yum -y -q install newrelic-php5
+else
 	if [ ! -f /etc/apt/sources.list.d/newrelic.list ]
 	then
 	        echo deb http://apt.newrelic.com/debian/ newrelic non-free >> /etc/apt/sources.list.d/newrelic.list
@@ -14,16 +14,17 @@ then
 	set -e
 	export DEBIAN_FRONTEND=noninteractive
 
+	wget -O - https://download.newrelic.com/548C16BF.gpg | sudo apt-key add -
 	apt-get -qq update
 	apt-get -qq -y install newrelic-php5
-
-	export NR_INSTALL_SILENT=1
-    export NR_INSTALL_KEY="$1"
-
-	newrelic-install install
 fi
 
-### Restart PHP services
-### TODO - Check for all possibilities
+### Install the PHP service
+export NR_INSTALL_SILENT=1
+export NR_INSTALL_KEY="$1"
+newrelic-install install
+
+### Restart web server
 /etc/init.d/apache2 restart
-/etc/init.d/php5-fpm restart
+
+exit 0

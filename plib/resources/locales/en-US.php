@@ -16,5 +16,6 @@ $messages = [
     'form_type_apm_reinstall'       => 'Re-Install APM',
     'form_type_apm_description'     => 'Get code level visibility for all your production apps. We help monitor over 3 million applications across six languages. More info: <a href="https://newrelic.com/application-monitoring" target="_blank">New Relic APM</a>.',
     'form_type_servers_installed'   => '<span style="color: green">New Relic SERVERS is installed!</span>',
-    'form_type_apm_installed'       => '<span style="color: green">New Relic APM is installed!</span>'
+    'form_type_apm_installed'       => '<span style="color: green">New Relic APM is installed!</span>',
+    'form_reboot_server'       => 'Reboot Server (Attention: This will close the connection to the server immediately! You may also use "Tools & Settings" - "Restart Server" to restart the server gracefully.)'
 ];
