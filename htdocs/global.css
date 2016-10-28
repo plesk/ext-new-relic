@@ -1,0 +1,38 @@
+#newrelic {
+    color: #474747;
+    font-family: Verdana,Geneva,sans-serif;
+    font-size: 14px;
+    line-height: 1.42857;
+}
+
+#newrelic .logo {
+    margin: 30px 0;
+}
+
+#newrelic .logo-product > img {
+    height: 50px;
+}
+
+#newrelic span.logo-product-servers {
+    margin-top: 20px;
+    display: inline-block;
+}
+
+#newrelic span.logo-product-apm {
+    margin-top: 10px;
+    display: inline-block;
+}
+
+#newrelic .description-product {
+    font-size: 12px;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+#newrelic #btn-send > button {
+    background-color: cadetblue;
+}
+
+#newrelic #btn-cancel {
+    display: none;
+}
