@@ -13,20 +13,41 @@
     height: 50px;
 }
 
-#newrelic span.logo-product-servers {
-    margin-top: 20px;
+#newrelic span.description-extension {
+    margin: 0 0 30px;
     display: inline-block;
+}
+
+#newrelic span.logo-product-servers {
+    display: inline-block;
+    float: left;
+    margin-top: 40px;
+    width: 330px;
 }
 
 #newrelic span.logo-product-apm {
-    margin-top: 10px;
     display: inline-block;
+    float: left;
+    margin-top: 15px;
+    width: 330px;
+}
+
+#newrelic span.logo-reboot_dummy {
+    display: inline-block;
+    float: left;
+    margin-top: 20px;
+    width: 330px;
+    height: 50px;
 }
 
 #newrelic .description-product {
-    font-size: 12px;
     display: inline-block;
-    margin-bottom: 10px;
+    font-size: 11px;
+    margin: 10px 0 20px;
+}
+
+#newrelic #btn-send {
+    margin-left: 100px;
 }
 
 #newrelic #btn-send > button {
@@ -35,4 +56,29 @@
 
 #newrelic #btn-cancel {
     display: none;
+}
+
+#newrelic .product-installed-servers {
+    font-weight: bold;
+    display: inline-block;
+    margin-top: 25px;
+    margin-left: -50px;
+}
+
+#newrelic .product-installed-apm, #newrelic .product-installed-reboot {
+    font-weight: bold;
+    display: inline-block;
+    margin-top: 15px;
+    margin-left: -50px;
+}
+
+#newrelic input[type=checkbox]
+{
+    /* Double-sized Checkboxes */
+    -ms-transform: scale(1.5); /* IE */
+    -moz-transform: scale(1.5); /* FF */
+    -webkit-transform: scale(1.5); /* Safari and Chrome */
+    -o-transform: scale(1.5); /* Opera */
+    padding: 10px;
+    margin-right: 10px;
 }

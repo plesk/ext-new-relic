@@ -23,8 +23,7 @@ class IndexController extends pm_Controller_Action
     public function formAction()
     {
         // Set the description text
-        $this->view->output_description = $this->lmsg('page_title_description');
-        $this->view->output_createaccount = $this->lmsg('create_account_first');
+        $this->view->output_description = $this->lmsg('output_description');
 
         // Init form here
         $form = new pm_Form_Simple();
@@ -32,8 +31,7 @@ class IndexController extends pm_Controller_Action
         $form->addElement('text', 'server_name', ['label' => $this->lmsg('form_server_name'), 'value' => pm_Settings::get('server_name'), 'required' => true, 'validators' => [['NotEmpty', true],],]);
         $this->installationType('servers', $form);
         $this->installationType('apm', $form);
-        $form->addElement('checkbox', 'reboot', ['label' => $this->lmsg('form_reboot_server'), 'value' => '']);
-        $form->addElement('description', 'reboot_description', ['description' => $this->lmsg('form_reboot_description'), 'escape' => false]);
+        $this->installationType('reboot', $form);
         $form->addControlButtons(['sendTitle' => $this->lmsg('form_button_send'), 'cancelLink' => pm_Context::getModulesListUrl(),]);
 
         // Process the form - save the license key and run the installation scripts
@@ -47,15 +45,19 @@ class IndexController extends pm_Controller_Action
                 pm_Settings::set('server_name', $server_name);
 
                 if ($form->getValue('servers')) {
-                    if ($this->runInstallation('servers', $license_key, $server_name)) {
-                        pm_Settings::set('servers', $form->getValue('servers'));
-                    }
+                    pm_Settings::set('servers', 1);
+
+                    //                    if ($this->runInstallation('servers', $license_key, $server_name)) {
+                    //                        pm_Settings::set('servers', $form->getValue('servers'));
+                    //                    }
                 }
 
                 if ($form->getValue('apm')) {
-                    if ($this->runInstallation('apm', $license_key, $server_name)) {
-                        pm_Settings::set('apm', $form->getValue('apm'));
-                    }
+                    pm_Settings::set('apm', 0);
+
+                    //                    if ($this->runInstallation('apm', $license_key, $server_name)) {
+                    //                        pm_Settings::set('apm', $form->getValue('apm'));
+                    //                    }
                 }
 
                 $this->_status->addMessage('info', $this->lmsg('message_success'));
@@ -70,6 +72,54 @@ class IndexController extends pm_Controller_Action
         }
 
         $this->view->form = $form;
+    }
+
+    private function installationType($type, &$form)
+    {
+        if ($type == 'reboot') {
+            $form->addElement('description', 'type_reboot_logo_dummy', ['description' => $this->lmsg('form_type_reboot_logo_dummy'), 'escape' => false]);
+            $form->addElement('description', 'reboot_dummy_installed', ['description' => $this->lmsg('form_reboot_dummy_installed'), 'escape' => false]);
+            $form->addElement('checkbox', 'reboot', ['label' => $this->lmsg('form_reboot_server'), 'value' => '']);
+            $form->addElement('description', 'reboot_description', ['description' => $this->lmsg('form_reboot_description'), 'escape' => false]);
+
+            return;
+        }
+
+        $installation_done = $this->checkInstallationState($type);
+
+        if ($type == 'servers') {
+            $form->addElement('description', 'type_servers_logo', ['description' => $this->lmsg('form_type_servers_logo'), 'escape' => false]);
+            if ($installation_done == false) {
+                $form->addElement('description', 'servers_install', ['description' => $this->lmsg('form_type_servers_install'), 'escape' => false]);
+                $form->addElement('checkbox', 'servers', ['label' => $this->lmsg('form_type_servers'), 'value' => pm_Settings::get('servers'), 'checked' => true]);
+            } else {
+                $form->addElement('description', 'servers_installed', ['description' => $this->lmsg('form_type_servers_installed'), 'escape' => false]);
+                $form->addElement('checkbox', 'servers', ['label' => $this->lmsg('form_type_servers_reinstall'), 'value' => '', 'checked' => false]);
+            }
+
+            $form->addElement('description', 'type_servers_description', ['description' => $this->lmsg('form_type_servers_description'), 'escape' => false]);
+
+            return;
+        }
+
+        if ($type == 'apm') {
+            $form->addElement('description', 'type_apm_logo', ['description' => $this->lmsg('form_type_apm_logo'), 'escape' => false]);
+
+            if ($installation_done == false) {
+                $form->addElement('description', 'apm_install', ['description' => $this->lmsg('form_type_apm_install'), 'escape' => false]);
+                $form->addElement('checkbox', 'apm', ['label' => $this->lmsg('form_type_apm'), 'value' => pm_Settings::get('apm'), 'checked' => true]);
+            } else {
+                $form->addElement('description', 'apm_installed', ['description' => $this->lmsg('form_type_apm_installed'), 'escape' => false]);
+                $form->addElement('checkbox', 'apm', ['label' => $this->lmsg('form_type_apm_reinstall'), 'value' => '', 'checked' => false]);
+            }
+
+            $form->addElement('description', 'type_apm_description', ['description' => $this->lmsg('form_type_apm_description'), 'escape' => false]);
+        }
+    }
+
+    private function checkInstallationState($type)
+    {
+        return pm_Settings::get($type);
     }
 
     private function rebootServer()
@@ -93,51 +143,5 @@ class IndexController extends pm_Controller_Action
         }
 
         return true;
-    }
-
-    private function installationType($type, &$form)
-    {
-        $installation_done = $this->checkInstallationState($type);
-
-        if ($installation_done == false) {
-            if ($type == 'servers') {
-                $form->addElement('description', 'type_servers_logo', ['description' => $this->lmsg('form_type_servers_logo'), 'escape' => false]);
-                $form->addElement('checkbox', 'servers', ['label' => $this->lmsg('form_type_servers'), 'value' => pm_Settings::get('servers'), 'checked' => true]);
-                $form->addElement('description', 'type_servers_description', ['description' => $this->lmsg('form_type_servers_description'), 'escape' => false]);
-
-                return;
-            }
-
-            if ($type == 'apm') {
-                $form->addElement('description', 'type_apm_logo', ['description' => $this->lmsg('form_type_apm_logo'), 'escape' => false]);
-                $form->addElement('checkbox', 'apm', ['label' => $this->lmsg('form_type_apm'), 'value' => pm_Settings::get('apm'), 'checked' => true]);
-                $form->addElement('description', 'type_apm_description', ['description' => $this->lmsg('form_type_apm_description'), 'escape' => false]);
-            }
-
-            return;
-        }
-
-        if ($type == 'servers') {
-            $form->addElement('description', 'type_servers_logo', ['description' => $this->lmsg('form_type_servers_logo'), 'escape' => false]);
-            $form->addElement('description', 'servers_installed', ['description' => $this->lmsg('form_type_servers_installed'), 'escape' => false]);
-            $form->addElement('checkbox', 'servers', ['label' => $this->lmsg('form_type_servers_reinstall'), 'value' => '', 'checked' => true]);
-            $form->addElement('description', 'type_servers_description', ['description' => $this->lmsg('form_type_servers_description'), 'escape' => false]);
-
-            return;
-        }
-
-        if ($type == 'apm') {
-            $form->addElement('description', 'type_apm_logo', ['description' => $this->lmsg('form_type_apm_logo'), 'escape' => false]);
-            $form->addElement('description', 'apm_installed', ['description' => $this->lmsg('form_type_apm_installed'), 'escape' => false]);
-            $form->addElement('checkbox', 'apm', ['label' => $this->lmsg('form_type_apm_reinstall'), 'value' => '', 'checked' => true]);
-            $form->addElement('description', 'type_apm_description', ['description' => $this->lmsg('form_type_apm_description'), 'escape' => false]);
-        }
-
-        return;
-    }
-
-    private function checkInstallationState($type)
-    {
-        return pm_Settings::get($type);
     }
 }
