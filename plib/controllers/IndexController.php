@@ -31,7 +31,7 @@ class IndexController extends pm_Controller_Action
         $form->addElement('text', 'server_name', ['label' => $this->lmsg('form_server_name'), 'value' => pm_Settings::get('server_name'), 'required' => true, 'validators' => [['NotEmpty', true],],]);
         $this->installationType('servers', $form);
         $this->installationType('apm', $form);
-        $this->installationType('reboot', $form);
+        $form->addElement('description', 'type_reboot_note', ['description' => $this->lmsg('form_type_reboot_note'), 'escape' => false]);
         $form->addControlButtons(['sendTitle' => $this->lmsg('form_button_send'), 'cancelLink' => pm_Context::getModulesListUrl(),]);
 
         // Process the form - save the license key and run the installation scripts
@@ -72,6 +72,7 @@ class IndexController extends pm_Controller_Action
 
     private function installationType($type, &$form)
     {
+        // Not used at the moment until SDK supports graceful reboot without throwing an error message
         if ($type == 'reboot') {
             $form->addElement('description', 'type_reboot_logo_dummy', ['description' => $this->lmsg('form_type_reboot_logo_dummy'), 'escape' => false]);
             $form->addElement('description', 'reboot_dummy_installed', ['description' => $this->lmsg('form_reboot_dummy_installed'), 'escape' => false]);

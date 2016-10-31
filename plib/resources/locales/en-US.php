@@ -19,6 +19,7 @@ $messages = [
     'form_type_servers_install'     => '<span class="product-installed-servers"></span>',
     'form_type_apm_installed'       => '<span class="product-installed-apm"><img src="check.png" alt="New Relic APM is installed" /> New Relic APM is installed!</span>',
     'form_type_apm_install'         => '<span class="product-installed-apm"></span>',
+    'form_type_reboot_note'       => '<span class="description-product_reboot">Attention: Please reboot the server after the installation to activate the New Relic agents properly. Go to <a href="/smb/settings/tools">Tools & Settings</a> and click on <strong>Restart Server</strong>.</span>',
     'form_reboot_server'            => 'Reboot Server',
     'form_type_reboot_logo_dummy'   => '<span class="logo-reboot_dummy"><br /></span>',
     'form_reboot_dummy_installed'   => '<span class="product-installed-reboot"></span>',
