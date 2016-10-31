@@ -45,19 +45,15 @@ class IndexController extends pm_Controller_Action
                 pm_Settings::set('server_name', $server_name);
 
                 if ($form->getValue('servers')) {
-                    pm_Settings::set('servers', 1);
-
-                    //                    if ($this->runInstallation('servers', $license_key, $server_name)) {
-                    //                        pm_Settings::set('servers', $form->getValue('servers'));
-                    //                    }
+                    if ($this->runInstallation('servers', $license_key, $server_name)) {
+                        pm_Settings::set('servers', $form->getValue('servers'));
+                    }
                 }
 
                 if ($form->getValue('apm')) {
-                    pm_Settings::set('apm', 0);
-
-                    //                    if ($this->runInstallation('apm', $license_key, $server_name)) {
-                    //                        pm_Settings::set('apm', $form->getValue('apm'));
-                    //                    }
+                    if ($this->runInstallation('apm', $license_key, $server_name)) {
+                        pm_Settings::set('apm', $form->getValue('apm'));
+                    }
                 }
 
                 $this->_status->addMessage('info', $this->lmsg('message_success'));
@@ -122,13 +118,6 @@ class IndexController extends pm_Controller_Action
         return pm_Settings::get($type);
     }
 
-    private function rebootServer()
-    {
-        $request = "<server><reboot/></server>";
-
-        pm_ApiRpc::getService()->call($request, 'admin');
-    }
-
     private function runInstallation($type, $license_key, $server_name = '')
     {
         $options = array();
@@ -143,5 +132,12 @@ class IndexController extends pm_Controller_Action
         }
 
         return true;
+    }
+
+    private function rebootServer()
+    {
+        $request = "<server><reboot/></server>";
+
+        pm_ApiRpc::getService()->call($request, 'admin');
     }
 }

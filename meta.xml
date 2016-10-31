@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <module>
   <id>new-relic</id>
-  <name>New Relic - Application Performance Management &amp; Monitoring</name>
+  <name>New Relic - Application Performance Monitoring</name>
   <description>A software analytics tool suite used by developers, ops, and software companies to understand how your applications are performing in development and production.</description>
   <version>1.0.0</version>
   <release>0</release>
