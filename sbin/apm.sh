@@ -25,6 +25,6 @@ export NR_INSTALL_KEY="$1"
 newrelic-install install
 
 ### Restart web server
-/etc/init.d/apache2 restart
+/etc/init.d/httpd restart
 
 exit 0
