@@ -46,10 +46,11 @@
     margin: 10px 0 20px;
 }
 
-#newrelic .description-product_reboot {
+#newrelic .description-product-reboot {
     display: inline-block;
     font-size: 13px;
     margin: 10px 0 20px;
+    color: red;
 }
 
 #newrelic #btn-send {
