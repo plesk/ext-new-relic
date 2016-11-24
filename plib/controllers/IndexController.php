@@ -1,5 +1,4 @@
 <?php
-
 // Copyright 1999-2016. Parallels IP Holdings GmbH.
 
 class IndexController extends pm_Controller_Action
@@ -20,10 +19,13 @@ class IndexController extends pm_Controller_Action
         $this->_forward('form');
     }
 
+    /**
+     * Default action which creates the form in the settings and processes the requests
+     */
     public function formAction()
     {
         // Set the description text
-        $this->view->output_description = $this->lmsg('output_description');
+        $this->view->output_description = $this->addSpanTranslation('output_description', 'description-extension');
 
         // Init form here
         $form = new pm_Form_Simple();
@@ -31,7 +33,7 @@ class IndexController extends pm_Controller_Action
         $form->addElement('text', 'server_name', ['label' => $this->lmsg('form_server_name'), 'value' => pm_Settings::get('server_name'), 'required' => true, 'validators' => [['NotEmpty', true],],]);
         $this->installationType('servers', $form);
         $this->installationType('apm', $form);
-        $form->addElement('description', 'type_reboot_note', ['description' => $this->lmsg('form_type_reboot_note'), 'escape' => false]);
+        $form->addElement('description', 'type_reboot_note', ['description' => $this->addSpanTranslation('form_type_reboot_note', 'description-product-reboot'), 'escape' => false]);
         $form->addControlButtons(['sendTitle' => $this->lmsg('form_button_send'), 'cancelLink' => pm_Context::getModulesListUrl(),]);
 
         // Process the form - save the license key and run the installation scripts
@@ -57,12 +59,6 @@ class IndexController extends pm_Controller_Action
                 }
 
                 $this->_status->addMessage('info', $this->lmsg('message_success'));
-
-                // Reboot
-                if ($form->getValue('reboot')) {
-                    $this->rebootServer();
-                }
-
                 $this->_helper->json(['redirect' => pm_Context::getBaseUrl()]);
             }
         }
@@ -70,55 +66,89 @@ class IndexController extends pm_Controller_Action
         $this->view->form = $form;
     }
 
-    private function installationType($type, &$form)
+    /**
+     * Adds a span element with a CSS class to the form field and removes not provided language strings
+     *
+     * @param string $language_string
+     * @param string $class_name
+     *
+     * @return string
+     */
+    private function addSpanTranslation($language_string, $class_name)
     {
-        // Not used at the moment until SDK supports graceful reboot without throwing an error message
-        if ($type == 'reboot') {
-            $form->addElement('description', 'type_reboot_logo_dummy', ['description' => $this->lmsg('form_type_reboot_logo_dummy'), 'escape' => false]);
-            $form->addElement('description', 'reboot_dummy_installed', ['description' => $this->lmsg('form_reboot_dummy_installed'), 'escape' => false]);
-            $form->addElement('checkbox', 'reboot', ['label' => $this->lmsg('form_reboot_server'), 'value' => '']);
-            $form->addElement('description', 'reboot_description', ['description' => $this->lmsg('form_reboot_description'), 'escape' => false]);
+        $translated_string = $this->lmsg($language_string);
 
-            return;
+        if ($translated_string == '[['.$language_string.']]') {
+            $translated_string = '';
         }
 
+        $span_element = '<span class="'.$class_name.'">'.$translated_string.'</span>';
+
+        return $span_element;
+    }
+
+    /**
+     * Adds elements to the pm_Form_Simple object depending on installation type
+     *
+     * @param string         $type
+     * @param pm_Form_Simple $form
+     */
+    private function installationType($type, &$form)
+    {
         $installation_done = $this->checkInstallationState($type);
 
         if ($type == 'servers') {
-            $form->addElement('description', 'type_servers_logo', ['description' => $this->lmsg('form_type_servers_logo'), 'escape' => false]);
+            $form->addElement('description', 'type_servers_logo', ['description' => $this->addSpanTranslation('form_type_servers_logo', 'logo-product-servers'), 'escape' => false]);
             if ($installation_done == false) {
-                $form->addElement('description', 'servers_install', ['description' => $this->lmsg('form_type_servers_install'), 'escape' => false]);
+                $form->addElement('description', 'servers_install', ['description' => $this->addSpanTranslation('form_type_servers_install', 'product-installed-servers'), 'escape' => false]);
                 $form->addElement('checkbox', 'servers', ['label' => $this->lmsg('form_type_servers'), 'value' => pm_Settings::get('servers'), 'checked' => true]);
             } else {
-                $form->addElement('description', 'servers_installed', ['description' => $this->lmsg('form_type_servers_installed'), 'escape' => false]);
+                $form->addElement('description', 'servers_installed', ['description' => $this->addSpanTranslation('form_type_servers_installed', 'product-installed-servers'), 'escape' => false]);
                 $form->addElement('checkbox', 'servers', ['label' => $this->lmsg('form_type_servers_reinstall'), 'value' => '', 'checked' => false]);
             }
 
-            $form->addElement('description', 'type_servers_description', ['description' => $this->lmsg('form_type_servers_description'), 'escape' => false]);
+            $form->addElement('description', 'type_servers_description', ['description' => $this->addSpanTranslation('form_type_servers_description', 'description-product'), 'escape' => false]);
 
             return;
         }
 
         if ($type == 'apm') {
-            $form->addElement('description', 'type_apm_logo', ['description' => $this->lmsg('form_type_apm_logo'), 'escape' => false]);
+            $form->addElement('description', 'type_apm_logo', ['description' => $this->addSpanTranslation('form_type_apm_logo', 'logo-product-apm'), 'escape' => false]);
 
             if ($installation_done == false) {
-                $form->addElement('description', 'apm_install', ['description' => $this->lmsg('form_type_apm_install'), 'escape' => false]);
+                $form->addElement('description', 'apm_install', ['description' => $this->addSpanTranslation('form_type_apm_install', 'product-installed-apm'), 'escape' => false]);
                 $form->addElement('checkbox', 'apm', ['label' => $this->lmsg('form_type_apm'), 'value' => pm_Settings::get('apm'), 'checked' => true]);
             } else {
-                $form->addElement('description', 'apm_installed', ['description' => $this->lmsg('form_type_apm_installed'), 'escape' => false]);
+                $form->addElement('description', 'apm_installed', ['description' => $this->addSpanTranslation('form_type_apm_installed', 'product-installed-apm'), 'escape' => false]);
                 $form->addElement('checkbox', 'apm', ['label' => $this->lmsg('form_type_apm_reinstall'), 'value' => '', 'checked' => false]);
             }
 
-            $form->addElement('description', 'type_apm_description', ['description' => $this->lmsg('form_type_apm_description'), 'escape' => false]);
+            $form->addElement('description', 'type_apm_description', ['description' => $this->addSpanTranslation('form_type_apm_description', 'description-product'), 'escape' => false]);
         }
     }
 
+    /**
+     * Checks state of the transferred option name which defines the state of the installation
+     *
+     * @param string $type
+     *
+     * @return null|string
+     */
     private function checkInstallationState($type)
     {
         return pm_Settings::get($type);
     }
 
+    /**
+     * Starts the installation process of the service using shell scripts
+     *
+     * @param string $type
+     * @param string $license_key
+     * @param string $server_name
+     *
+     * @return bool
+     * @throws pm_Exception
+     */
     private function runInstallation($type, $license_key, $server_name = '')
     {
         $options = array();
@@ -133,12 +163,5 @@ class IndexController extends pm_Controller_Action
         }
 
         return true;
-    }
-
-    private function rebootServer()
-    {
-        $request = "<server><reboot/></server>";
-
-        pm_ApiRpc::getService()->call($request, 'admin');
     }
 }
