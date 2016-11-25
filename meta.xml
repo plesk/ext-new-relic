@@ -7,5 +7,6 @@
   <release>1</release>
   <vendor>Plesk</vendor>
   <url>http://www.plesk.com</url>
+  <os>unix</os>
   <plesk_min_version>12.5.30</plesk_min_version>
 </module>

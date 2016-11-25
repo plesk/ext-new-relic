@@ -3,7 +3,11 @@
 ### Add the New Relic repository and install PHP service
 if [ -f /etc/redhat-release ]
 then
-    rpm -Uvh http://yum.newrelic.com/pub/newrelic/el5/i386/newrelic-repo-5-3.noarch.rpm
+    if [ ! -f /etc/yum.repos.d/newrelic.repo ]
+    then
+        rpm -Uvh http://yum.newrelic.com/pub/newrelic/el5/i386/newrelic-repo-5-3.noarch.rpm
+    fi
+
     yum -y -q install newrelic-php5
 else
 	if [ ! -f /etc/apt/sources.list.d/newrelic.list ]
@@ -25,6 +29,11 @@ export NR_INSTALL_KEY="$1"
 newrelic-install install
 
 ### Restart web server
-/etc/init.d/httpd restart
+if [ -f /etc/redhat-release ]
+then
+    service httpd restart
+else
+    service apache2 restart
+fi
 
 exit 0
