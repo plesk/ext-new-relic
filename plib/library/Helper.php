@@ -1,6 +1,6 @@
 <?php
 
-class ModulesNewRelicHelper
+class Modules_NewRelic_Helper
 {
     public static function postInstallCheck()
     {

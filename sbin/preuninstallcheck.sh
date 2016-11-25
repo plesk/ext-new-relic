@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-REMOVESERVERS=`cat /opt/psa/var/modules/new-relic/removepackageservers`
+REMOVESERVERS=`cat /usr/local/psa/var/modules/new-relic/removepackageservers`
 
 if [ "$REMOVESERVERS" = "1" ];
 then
@@ -16,7 +16,7 @@ fi
 # Add sleep of 3 seconds to avoid process lock issues
 sleep 3
 
-REMOVEAPM=`cat /opt/psa/var/modules/new-relic/removepackageapm`
+REMOVEAPM=`cat /usr/local/psa/var/modules/new-relic/removepackageapm`
 
 if [ "$REMOVEAPM" = "1" ];
 then

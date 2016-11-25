@@ -3,4 +3,4 @@
 
 pm_Context::init('new-relic');
 
-ModulesNewRelicHelper::preUninstallCheck();
+Modules_NewRelic_Helper::preUninstallCheck();

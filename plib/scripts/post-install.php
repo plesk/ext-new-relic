@@ -3,4 +3,4 @@
 
 pm_Context::init('new-relic');
 
-ModulesNewRelicHelper::postInstallCheck();
+Modules_NewRelic_Helper::postInstallCheck();
