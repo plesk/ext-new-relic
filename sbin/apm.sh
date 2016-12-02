@@ -18,7 +18,7 @@ else
 	set -e
 	export DEBIAN_FRONTEND=noninteractive
 
-	wget -O - https://download.newrelic.com/548C16BF.gpg | sudo apt-key add -
+	wget -O - https://download.newrelic.com/548C16BF.gpg | apt-key add -
 	apt-get -qq update
 	apt-get -qq -y install newrelic-php5
 fi
