@@ -38,29 +38,7 @@ class IndexController extends pm_Controller_Action
 
         // Process the form - save the license key and run the installation scripts
         if ($this->getRequest()->isPost() && $form->isValid($this->getRequest()->getPost())) {
-            $license_key = $form->getValue('license_key');
-
-            if (!empty($license_key)) {
-                pm_Settings::set('license_key', $license_key);
-
-                $server_name = $form->getValue('server_name');
-                pm_Settings::set('server_name', $server_name);
-
-                if ($form->getValue('servers')) {
-                    if ($this->runInstallation('servers', $license_key, $server_name)) {
-                        pm_Settings::set('servers', $form->getValue('servers'));
-                    }
-                }
-
-                if ($form->getValue('apm')) {
-                    if ($this->runInstallation('apm', $license_key, $server_name)) {
-                        pm_Settings::set('apm', $form->getValue('apm'));
-                    }
-                }
-
-                $this->_status->addMessage('info', $this->lmsg('message_success'));
-                $this->_helper->json(['redirect' => pm_Context::getBaseUrl()]);
-            }
+            $this->processPostRequest($form);
         }
 
         $this->view->form = $form;
@@ -123,6 +101,15 @@ class IndexController extends pm_Controller_Action
                 $form->addElement('checkbox', 'apm', ['label' => $this->lmsg('form_type_apm_reinstall'), 'value' => '', 'checked' => false]);
             }
 
+            $php_versions = $this->getPleskPhpVersions();
+
+            if (!empty($php_versions)) {
+                $form->addElement('description', 'type_apm_php_versions', ['description' => $this->addSpanTranslation('form_type_apm_php_versions', 'description-php-versions'), 'escape' => false]);
+                foreach ($php_versions as $php_version) {
+                    $form->addElement('checkbox', 'php_versions_'.$php_version, ['label' => $php_version, 'value' => '', 'checked' => true]);
+                }
+            }
+
             $form->addElement('description', 'type_apm_description', ['description' => $this->addSpanTranslation('form_type_apm_description', 'description-product'), 'escape' => false]);
         }
     }
@@ -140,6 +127,77 @@ class IndexController extends pm_Controller_Action
     }
 
     /**
+     * Gets all installed Plesk PHP versions with the help of shell script
+     *
+     * @return array
+     */
+    private function getPleskPhpVersions()
+    {
+        $php_versions = array();
+
+        $result = pm_ApiCli::callSbin('phpversions.sh', array(), pm_ApiCli::RESULT_FULL);
+
+        if (empty($result['code'] AND !empty($result['stdout']))) {
+            $php_versions = explode("\n", $result['stdout']);
+        }
+
+        return array_filter($php_versions);
+    }
+
+    /**
+     * Processes POST request - after form submission
+     *
+     * @param $form
+     */
+    private function processPostRequest($form)
+    {
+        $license_key = $form->getValue('license_key');
+
+        if ($this->validateLicenseKey($license_key)) {
+            pm_Settings::set('license_key', $license_key);
+
+            $server_name = $form->getValue('server_name');
+            pm_Settings::set('server_name', $server_name);
+
+            if ($form->getValue('servers')) {
+                if ($this->runInstallation('servers', $license_key, $server_name)) {
+                    pm_Settings::set('servers', $form->getValue('servers'));
+                }
+            }
+
+            if ($form->getValue('apm')) {
+                $php_versions = $this->getSelectedPleskPhpVersion();
+
+                if ($this->runInstallation('apm', $license_key, $server_name, $php_versions)) {
+                    pm_Settings::set('apm', $form->getValue('apm'));
+                }
+            }
+
+            $this->_status->addMessage('info', $this->lmsg('message_success'));
+        }
+
+        $this->_helper->json(['redirect' => pm_Context::getBaseUrl()]);
+    }
+
+    /**
+     * Validates the New Relic license key
+     *
+     * @param string $license_key
+     *
+     * @return bool
+     */
+    private function validateLicenseKey($license_key)
+    {
+        if (empty($license_key) OR strlen($license_key) != 40) {
+            $this->_status->addMessage('error', $this->lmsg('message_error_key'));
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Starts the installation process of the service using shell scripts
      *
      * @param string $type
@@ -149,12 +207,13 @@ class IndexController extends pm_Controller_Action
      * @return bool
      * @throws pm_Exception
      */
-    private function runInstallation($type, $license_key, $server_name = '')
+    private function runInstallation($type, $license_key, $server_name = '', $php_versions = '')
     {
         $options = array();
 
         $options[] = $license_key;
         $options[] = addslashes($server_name);
+        $options[] = $php_versions;
 
         $result = pm_ApiCli::callSbin($type.'.sh', $options, pm_ApiCli::RESULT_FULL);
 
@@ -163,5 +222,29 @@ class IndexController extends pm_Controller_Action
         }
 
         return true;
+    }
+
+    /**
+     * Gets all selected Plesk PHP version for the APM service
+     *
+     * @return string
+     */
+    private function getSelectedPleskPhpVersion()
+    {
+        $php_versions_selected = '';
+        $php_versions_selected_array = array();
+        $php_versions_installed = $this->getPleskPhpVersions();
+
+        foreach ($php_versions_installed as $php_version_installed) {
+            if ($this->getRequest()->get('php_versions_'.str_replace('.', '', $php_version_installed))) {
+                $php_versions_selected_array[] = '/opt/plesk/php/'.$php_version_installed.'/bin/';
+            }
+        }
+
+        if (!empty($php_versions_selected_array)) {
+            $php_versions_selected = implode(':', $php_versions_selected_array);
+        }
+
+        return $php_versions_selected;
     }
 }

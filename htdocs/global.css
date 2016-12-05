@@ -18,6 +18,15 @@
     display: inline-block;
 }
 
+#newrelic span.description-php-versions {
+    margin: 10px 0 0 305px;
+    display: inline-block;
+}
+
+#newrelic div[id^="php_versions_"] {
+    margin-left: 315px;
+}
+
 #newrelic span.logo-product-servers {
     display: inline-block;
     float: left;

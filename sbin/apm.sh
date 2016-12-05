@@ -26,6 +26,7 @@ fi
 ### Install the PHP service
 export NR_INSTALL_SILENT=1
 export NR_INSTALL_KEY="$1"
+export NR_INSTALL_PHPLIST="$3"
 newrelic-install install
 
 ### Restart web server
