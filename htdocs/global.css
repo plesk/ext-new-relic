@@ -23,8 +23,12 @@
     display: inline-block;
 }
 
-#newrelic div[id^="php_versions_"] {
-    margin-left: 315px;
+#newrelic input[id^="php_versions_"] {
+    margin-left: 295px;
+}
+
+#newrelic label[for^="php_versions_"] {
+    margin-left: 5px;
 }
 
 #newrelic span.logo-product-servers {

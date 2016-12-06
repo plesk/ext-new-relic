@@ -6,10 +6,20 @@ if [ "$REMOVESERVERS" = "1" ];
 then
     if [ -f /etc/redhat-release ];
     then
-        nohup rpm -e newrelic-sysmond > /dev/null 2>&1 &
+        yum -y -q remove newrelic-sysmond
+        yum -y -q remove newrelic-repo
+
+        if [ -f /etc/yum.repos.d/newrelic.repo ]
+        then
+            rm /etc/yum.repos.d/newrelic.repo
+        fi
     else
-        nohup dpkg -r newrelic-sysmond > /dev/null 2>&1 &
-        apt-get -qq -y autoremove
+        apt-get -qq -y --purge autoremove newrelic-sysmond
+
+        if [ -f /etc/apt/sources.list.d/newrelic.list ]
+        then
+            rm /etc/apt/sources.list.d/newrelic.list
+        fi
     fi
 fi
 
@@ -22,9 +32,20 @@ if [ "$REMOVEAPM" = "1" ];
 then
     if [ -f /etc/redhat-release ];
     then
-        nohup rpm -e newrelic-php5 > /dev/null 2>&1 &
+        yum -y -q remove newrelic-php5
+        yum -y -q remove newrelic-php5-common
+        yum -y -q remove newrelic-repo
+
+        if [ -f /etc/yum.repos.d/newrelic.repo ]
+        then
+            rm /etc/yum.repos.d/newrelic.repo
+        fi
     else
-        nohup dpkg -r newrelic-php5 > /dev/null 2>&1 &
-        apt-get -qq -y autoremove
+        apt-get -qq -y --purge autoremove newrelic-php5
+
+        if [ -f /etc/apt/sources.list.d/newrelic.list ]
+        then
+            rm /etc/apt/sources.list.d/newrelic.list
+        fi
     fi
 fi
