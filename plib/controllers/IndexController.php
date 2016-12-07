@@ -1,4 +1,5 @@
 <?php
+
 // Copyright 1999-2016. Parallels IP Holdings GmbH.
 
 class IndexController extends pm_Controller_Action
@@ -105,7 +106,7 @@ class IndexController extends pm_Controller_Action
 
             if (!empty($php_versions)) {
                 $form->addElement('description', 'type_apm_php_versions', ['description' => $this->addSpanTranslation('form_type_apm_php_versions', 'description-php-versions'), 'escape' => false]);
-                foreach ($php_versions as $php_version) {
+                foreach ($php_versions as $php_version => $php_bin_path) {
                     $form->addElement('checkbox', 'php_versions_'.$php_version, ['label' => $php_version, 'value' => '', 'checked' => true]);
                 }
             }
@@ -138,10 +139,18 @@ class IndexController extends pm_Controller_Action
         $result = pm_ApiCli::callSbin('phpversions.sh', array(), pm_ApiCli::RESULT_FULL);
 
         if (empty($result['code'] AND !empty($result['stdout']))) {
-            $php_versions = explode("\n", $result['stdout']);
+            $php_versions_object = json_decode($result['stdout']);
+
+            foreach ($php_versions_object as $php_version) {
+                if (!array_key_exists($php_version->fullVersion, $php_versions)) {
+                    if ($php_version->status == 'enabled') {
+                        $php_versions[$php_version->fullVersion] = substr($php_version->clipath, 0, strrpos($php_version->clipath, '/'));
+                    }
+                }
+            }
         }
 
-        return array_filter($php_versions);
+        return $php_versions;
     }
 
     /**
@@ -235,9 +244,9 @@ class IndexController extends pm_Controller_Action
         $php_versions_selected_array = array();
         $php_versions_installed = $this->getPleskPhpVersions();
 
-        foreach ($php_versions_installed as $php_version_installed) {
+        foreach ($php_versions_installed as $php_version_installed => $php_bin_path_installed) {
             if ($this->getRequest()->get('php_versions_'.str_replace('.', '', $php_version_installed))) {
-                $php_versions_selected_array[] = '/opt/plesk/php/'.$php_version_installed.'/bin/';
+                $php_versions_selected_array[] = $php_bin_path_installed;
             }
         }
 

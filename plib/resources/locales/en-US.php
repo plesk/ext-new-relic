@@ -13,7 +13,7 @@ $messages = [
     'form_type_servers_logo'        => '<img src="new-relic-servers.png" alt="New Relic - APM" />',
     'form_type_servers_description' => 'Monitor server health to track capacity, memory or CPU consumption. More info: <a href="https://newrelic.com/server-monitoring" target="_blank">New Relic SERVERS</a>',
     'form_type_apm'                 => 'Install APM',
-    'form_type_apm_php_versions'    => 'Select Plesk PHP versions',
+    'form_type_apm_php_versions'    => 'Select PHP versions',
     'form_type_apm_reinstall'       => 'Re-Install APM',
     'form_type_apm_logo'            => '<img src="new-relic-apm.png" alt="New Relic - APM" />',
     'form_type_apm_description'     => 'Get code level visibility for all your production apps. We help monitor over 3 million applications across six languages. More info: <a href="https://newrelic.com/application-monitoring" target="_blank">New Relic APM</a>.',

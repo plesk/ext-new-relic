@@ -1,5 +1,3 @@
 #!/bin/bash -e
 
-for file in /opt/plesk/php/*; do
-  echo ${file##*/}
-done
+plesk bin php_handler --list -json true
