@@ -134,7 +134,8 @@ class IndexController extends pm_Controller_Action
     private function getPleskPhpVersions()
     {
         $php_versions = array();
-        $result = pm_ApiCli::call('php_handler', array('--list', '-json', 'true'), pm_ApiCli::RESULT_FULL);
+
+        $result = pm_ApiCli::callSbin('phpversions.sh', array(), pm_ApiCli::RESULT_FULL);
 
         if (empty($result['code'] AND !empty($result['stdout']))) {
             $php_versions_object = json_decode($result['stdout']);
