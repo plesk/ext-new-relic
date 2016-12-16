@@ -23,8 +23,8 @@ then
     fi
 fi
 
-# Add sleep of 3 seconds to avoid process lock issues
-sleep 3
+# Add sleep of 6 seconds to avoid process lock issues
+sleep 6
 
 REMOVEAPM=`cat /usr/local/psa/var/modules/new-relic/removepackageapm`
 
