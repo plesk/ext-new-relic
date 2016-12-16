@@ -2,7 +2,9 @@
 // Copyright 1999-2016. Parallels IP Holdings GmbH.
 
 $messages = [
-    'message_success'               => 'Data was successfully saved.',
+    'message_success'               => 'Data was successfully saved!',
+    'message_success_servers'       => 'SERVERS was successfully installed!',
+    'message_success_apm'           => 'APM was successfully installed!',
     'message_error_key'             => 'License Key must be 40 characters exactly!',
     'message_warning_php_version'   => 'Please select at least one PHP version!',
     'page_title'                    => 'New Relic - Application Performance Monitoring',

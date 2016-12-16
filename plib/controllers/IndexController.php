@@ -172,9 +172,13 @@ class IndexController extends pm_Controller_Action
             $server_name = $form->getValue('server_name');
             pm_Settings::set('server_name', $server_name);
 
+            $this->_status->addMessage('info', $this->lmsg('message_success'));
+
             if ($form->getValue('servers')) {
                 if ($this->runInstallation('servers', $license_key, $server_name)) {
                     pm_Settings::set('servers', $form->getValue('servers'));
+
+                    $this->_status->addMessage('info', $this->lmsg('message_success_servers'));
                 }
             }
 
@@ -185,10 +189,12 @@ class IndexController extends pm_Controller_Action
                     $this->_status->addMessage('warning', $this->lmsg('message_warning_php_version'));
                 } elseif ($this->runInstallation('apm', $license_key, $server_name, $php_versions)) {
                     pm_Settings::set('apm', $form->getValue('apm'));
+
+                    $this->_status->addMessage('info', $this->lmsg('message_success_apm'));
                 }
             }
 
-            $this->_status->addMessage('info', $this->lmsg('message_success'));
+
         }
 
         $this->_helper->json(['redirect' => pm_Context::getBaseUrl()]);
