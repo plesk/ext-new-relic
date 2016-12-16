@@ -105,6 +105,12 @@ class IndexController extends pm_Controller_Action
             if (!empty($php_versions)) {
                 $form->addElement('description', 'type_apm_php_versions', ['description' => $this->addSpanTranslation('form_type_apm_php_versions', 'description-php-versions'), 'escape' => false]);
                 foreach ($php_versions as $php_version => $php_bin_path) {
+                    if ($this->checkInstallationState('php_versions_'.str_replace('.', '', $php_version))) {
+                        $form->addElement('checkbox', 'php_versions_'.$php_version, ['label' => $php_version.' ['.$this->lmsg('form_type_apm_php_activated').']', 'value' => '', 'checked' => false]);
+
+                        continue;
+                    }
+
                     $form->addElement('checkbox', 'php_versions_'.$php_version, ['label' => $php_version, 'value' => '', 'checked' => true]);
                 }
             }
@@ -175,7 +181,9 @@ class IndexController extends pm_Controller_Action
             if ($form->getValue('apm')) {
                 $php_versions = $this->getSelectedPleskPhpVersion();
 
-                if ($this->runInstallation('apm', $license_key, $server_name, $php_versions)) {
+                if (empty($php_versions)) {
+                    $this->_status->addMessage('warning', $this->lmsg('message_warning_php_version'));
+                } elseif ($this->runInstallation('apm', $license_key, $server_name, $php_versions)) {
                     pm_Settings::set('apm', $form->getValue('apm'));
                 }
             }
@@ -245,6 +253,7 @@ class IndexController extends pm_Controller_Action
         foreach ($php_versions_installed as $php_version_installed => $php_bin_path_installed) {
             if ($this->getRequest()->get('php_versions_'.str_replace('.', '', $php_version_installed))) {
                 $php_versions_selected_array[] = $php_bin_path_installed;
+                pm_Settings::set('php_versions_'.str_replace('.', '', $php_version_installed), true);
             }
         }
 
