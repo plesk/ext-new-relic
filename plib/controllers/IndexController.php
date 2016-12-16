@@ -26,6 +26,11 @@ class IndexController extends pm_Controller_Action
     {
         // Set the description text
         $this->view->output_description = $this->addSpanTranslation('output_description', 'description-extension');
+        $this->view->output_description_signup = '';
+
+        if (empty(pm_Settings::get('license_key'))) {
+            $this->view->output_description_signup = $this->addSpanTranslation('output_description_signup', 'description-extension');
+        }
 
         // Init form here
         $form = new pm_Form_Simple();
@@ -193,8 +198,6 @@ class IndexController extends pm_Controller_Action
                     $this->_status->addMessage('info', $this->lmsg('message_success_apm'));
                 }
             }
-
-
         }
 
         $this->_helper->json(['redirect' => pm_Context::getBaseUrl()]);
