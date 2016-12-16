@@ -30,6 +30,8 @@ REMOVEAPM=`cat /usr/local/psa/var/modules/new-relic/removepackageapm`
 
 if [ "$REMOVEAPM" = "1" ];
 then
+    export NR_INSTALL_SILENT=1
+    newrelic-install purge
     if [ -f /etc/redhat-release ];
     then
         yum -y -q remove newrelic-php5
