@@ -19,6 +19,5 @@ $messages = [
     'form_type_apm_description'     => 'Get code level visibility for all your production apps. We help monitor over 3 million applications across six languages. More info: <a href="https://newrelic.com/application-monitoring" target="_blank">New Relic APM</a>.',
     'form_type_servers_installed'   => '<img src="check.png" alt="New Relic SERVERS is installed" /> New Relic SERVERS is installed!',
     'form_type_apm_installed'       => '<img src="check.png" alt="New Relic APM is installed" /> New Relic APM is installed!',
-    'form_type_reboot_note'         => 'Attention: The New Relic agent needs a reboot of the server after installation to function properly. Go to <a href="/smb/settings/tools">Tools & Settings</a> and click on <strong>Restart Server</strong>.',
     'form_button_send'              => 'Install'
 ];

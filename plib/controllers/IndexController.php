@@ -33,7 +33,6 @@ class IndexController extends pm_Controller_Action
         $form->addElement('text', 'server_name', ['label' => $this->lmsg('form_server_name'), 'value' => pm_Settings::get('server_name'), 'required' => true, 'validators' => [['NotEmpty', true],],]);
         $this->installationType('servers', $form);
         $this->installationType('apm', $form);
-        $form->addElement('description', 'type_reboot_note', ['description' => $this->addSpanTranslation('form_type_reboot_note', 'description-product-reboot'), 'escape' => false]);
         $form->addControlButtons(['sendTitle' => $this->lmsg('form_button_send'), 'cancelLink' => pm_Context::getModulesListUrl(),]);
 
         // Process the form - save the license key and run the installation scripts
