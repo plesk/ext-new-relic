@@ -195,6 +195,9 @@ class IndexController extends pm_Controller_Action
                 } elseif ($this->runInstallation('apm', $license_key, $server_name, $php_versions)) {
                     pm_Settings::set('apm', $form->getValue('apm'));
 
+                    // Save all modified PHP versions into a file - required for uninstallation process
+                    $this->runInstallation('phpversionsuninstall', $license_key, $server_name, $php_versions);
+
                     $this->_status->addMessage('info', $this->lmsg('message_success_apm'));
                 }
             }
