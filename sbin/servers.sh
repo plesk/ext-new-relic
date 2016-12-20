@@ -24,6 +24,20 @@ fi
 nrsysmond-config --set license_key="$1"
 sed -i -r "s/#?hostname=(\")?.*(\")?/hostname=\"$2\"/g" /etc/newrelic/nrsysmond.cfg
 
+### Run monitor as root user to avoid re-installation problems
+if [ -f /etc/redhat-release ]
+then
+    if [ -f /etc/sysconfig/newrelic-sysmond ]
+    then
+        sed -i -r "s/#?RUNAS=newrelic/#RUNAS=newrelic/g" /etc/sysconfig/newrelic-sysmond
+    fi
+else
+    if [ -f /etc/default/newrelic-sysmond ]
+    then
+        sed -i -r "s/#?RUNAS=newrelic/#RUNAS=newrelic/g" /etc/default/newrelic-sysmond
+    fi
+fi
+
 ### Start New Relic service - User "restart" to update config if already running
 /etc/init.d/newrelic-sysmond restart
 
