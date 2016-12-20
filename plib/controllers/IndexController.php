@@ -197,8 +197,13 @@ class IndexController extends pm_Controller_Action
 
                     // Save all modified PHP versions into a file - required for uninstallation process
                     $this->runInstallation('phpversionsuninstall', $license_key, $server_name, $php_versions);
-
                     $this->_status->addMessage('info', $this->lmsg('message_success_apm'));
+                }
+            } else {
+                $php_versions = $this->getSelectedPleskPhpVersion(false);
+
+                if (!empty($php_versions)) {
+                    $this->_status->addMessage('warning', $this->lmsg('message_warning_select_apm'));
                 }
             }
         }
@@ -254,9 +259,11 @@ class IndexController extends pm_Controller_Action
     /**
      * Gets all selected Plesk PHP version for the APM service
      *
+     * @param bool $installation
+     *
      * @return string
      */
-    private function getSelectedPleskPhpVersion()
+    private function getSelectedPleskPhpVersion($installation = true)
     {
         $php_versions_selected = '';
         $php_versions_selected_array = array();
@@ -265,7 +272,9 @@ class IndexController extends pm_Controller_Action
         foreach ($php_versions_installed as $php_version_installed => $php_bin_path_installed) {
             if ($this->getRequest()->get('php_versions_'.str_replace('.', '', $php_version_installed))) {
                 $php_versions_selected_array[] = $php_bin_path_installed;
-                pm_Settings::set('php_versions_'.str_replace('.', '', $php_version_installed), true);
+                if (!empty($installation)) {
+                    pm_Settings::set('php_versions_'.str_replace('.', '', $php_version_installed), true);
+                }
             }
         }
 

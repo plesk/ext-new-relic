@@ -7,6 +7,7 @@ $messages = [
     'message_success_apm'           => 'APM was successfully installed!',
     'message_error_key'             => 'License Key must be 40 characters exactly!',
     'message_warning_php_version'   => 'Please select at least one PHP version!',
+    'message_warning_select_apm'    => 'Please also select the APM installation field to activate the service for another PHP version!',
     'page_title'                    => 'New Relic - Application Performance Monitoring',
     'output_description'            => 'A software analytics tool suite used by developers, ops, and software companies to understand how your applications are performing in development and production.',
     'output_description_signup'     => 'Don\'t have an account at New Relic yet? Sign up for free <a href="https://newrelic.com/" target="_blank">here</a>! No credit card necessary.',
