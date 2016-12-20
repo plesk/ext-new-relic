@@ -10,17 +10,17 @@ then
 
     yum -y -q install newrelic-php5
 else
-	if [ ! -f /etc/apt/sources.list.d/newrelic.list ]
-	then
-	        echo deb http://apt.newrelic.com/debian/ newrelic non-free >> /etc/apt/sources.list.d/newrelic.list
-	fi
+    if [ ! -f /etc/apt/sources.list.d/newrelic.list ]
+    then
+            echo deb http://apt.newrelic.com/debian/ newrelic non-free >> /etc/apt/sources.list.d/newrelic.list
+    fi
 
-	set -e
-	export DEBIAN_FRONTEND=noninteractive
+    set -e
+    export DEBIAN_FRONTEND=noninteractive
 
-	wget -O - https://download.newrelic.com/548C16BF.gpg | apt-key add -
-	apt-get -qq update
-	apt-get -qq -y install newrelic-php5
+    wget -O - https://download.newrelic.com/548C16BF.gpg | apt-key add -
+    apt-get -qq update
+    apt-get -qq -y install newrelic-php5
 fi
 
 ### Install the PHP service
@@ -61,5 +61,7 @@ then
 else
     service apache2 restart
 fi
+
+plesk bin php_handler --reread
 
 exit 0
