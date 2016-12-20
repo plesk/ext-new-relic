@@ -196,7 +196,7 @@ class IndexController extends pm_Controller_Action
                     pm_Settings::set('apm', $form->getValue('apm'));
 
                     // Save all modified PHP versions into a file - required for uninstallation process
-                    $this->runInstallation('phpversionsuninstall', $license_key, $server_name, $php_versions);
+                    $this->saveInstalledPhpVersions($php_versions);
                     $this->_status->addMessage('info', $this->lmsg('message_success_apm'));
                 }
             } else {
@@ -209,6 +209,30 @@ class IndexController extends pm_Controller_Action
         }
 
         $this->_helper->json(['redirect' => pm_Context::getBaseUrl()]);
+    }
+
+    /**
+     * Writes installed PHP versions into a file that is used in the uninstallation process
+     *
+     * @param $php_versions
+     */
+    private function saveInstalledPhpVersions($php_versions)
+    {
+        $php_versions_installed = $this->getPleskPhpVersions();
+        $php_versions_selected = explode(':', $php_versions);
+
+        foreach ($php_versions_installed as $php_version => $php_path) {
+            if ($this->checkInstallationState('php_versions_'.str_replace('.', '', $php_version))) {
+                if(!in_array($php_path, $php_versions_selected))
+                {
+                    $php_versions_selected[] = $php_path;
+                }
+            }
+        }
+
+        $php_versions = implode(':', $php_versions_selected);
+
+        $this->runInstallation('phpversionsuninstall', '', '', $php_versions);
     }
 
     /**
@@ -239,7 +263,7 @@ class IndexController extends pm_Controller_Action
      * @return bool
      * @throws pm_Exception
      */
-    private function runInstallation($type, $license_key, $server_name = '', $php_versions = '')
+    private function runInstallation($type, $license_key = '', $server_name = '', $php_versions = '')
     {
         $options = array();
 
