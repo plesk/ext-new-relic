@@ -51,6 +51,7 @@ then
                 rm /etc/yum.repos.d/newrelic.repo
             fi
 
+            service httpd restart
             plesk bin php_handler --reread
         fi
     else
@@ -68,6 +69,7 @@ then
                 rm /etc/apt/sources.list.d/newrelic.list
             fi
 
+            service apache2 restart
             plesk bin php_handler --reread
         fi
     fi
