@@ -43,6 +43,11 @@ then
         rm /etc/php/7.0/fpm/conf.d/20-newrelic.ini
     fi
 
+    if [ -f /etc/php/7.0/cgi/conf.d/20-newrelic.ini ]
+    then
+        rm /etc/php/7.0/cgi/conf.d/20-newrelic.ini
+    fi
+
     if [ -f /etc/php5/cli/conf.d/20-newrelic.ini ]
     then
         rm /etc/php5/cli/conf.d/20-newrelic.ini
@@ -51,6 +56,11 @@ then
     if [ -f /etc/php5/fpm/conf.d/20-newrelic.ini ]
     then
         rm /etc/php5/fpm/conf.d/20-newrelic.ini
+    fi
+
+    if [ -f /etc/php5/cgi/conf.d/20-newrelic.ini ]
+    then
+        rm /etc/php5/cgi/conf.d/20-newrelic.ini
     fi
 fi
 
