@@ -50,6 +50,8 @@ then
             then
                 rm /etc/yum.repos.d/newrelic.repo
             fi
+
+            plesk bin php_handler --reread
         fi
     else
         if [ $(dpkg-query -W -f='${Status}' newrelic-php5 2>/dev/null | grep -c "ok installed") -eq 1 ];
@@ -65,6 +67,8 @@ then
             then
                 rm /etc/apt/sources.list.d/newrelic.list
             fi
+
+            plesk bin php_handler --reread
         fi
     fi
 fi
