@@ -175,6 +175,7 @@ class IndexController extends pm_Controller_Action
             pm_Settings::set('license_key', $license_key);
 
             $server_name = $form->getValue('server_name');
+            $server_name = preg_replace('/[[:^print:]]/', '', trim($server_name));
             pm_Settings::set('server_name', $server_name);
 
             $this->_status->addMessage('info', $this->lmsg('message_success'));
