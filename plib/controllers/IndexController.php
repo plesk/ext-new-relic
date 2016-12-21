@@ -1,4 +1,5 @@
 <?php
+
 // Copyright 1999-2016. Parallels IP Holdings GmbH.
 
 class IndexController extends pm_Controller_Action
@@ -42,7 +43,12 @@ class IndexController extends pm_Controller_Action
 
         // Process the form - save the license key and run the installation scripts
         if ($this->getRequest()->isPost() && $form->isValid($this->getRequest()->getPost())) {
-            $this->processPostRequest($form);
+            try {
+                $this->processPostRequest($form);
+            }
+            catch (Exception $e) {
+                $this->_status->addMessage('error', $e->getMessage());
+            }
         }
 
         $this->view->form = $form;
@@ -224,8 +230,7 @@ class IndexController extends pm_Controller_Action
 
         foreach ($php_versions_installed as $php_version => $php_path) {
             if ($this->checkInstallationState('php_versions_'.str_replace('.', '', $php_version))) {
-                if(!in_array($php_path, $php_versions_selected))
-                {
+                if (!in_array($php_path, $php_versions_selected)) {
                     $php_versions_selected[] = $php_path;
                 }
             }
