@@ -41,4 +41,7 @@ fi
 ### Start New Relic service - User "restart" to update config if already running
 /etc/init.d/newrelic-sysmond restart
 
+# Add sleep of 2 seconds to avoid process lock issues
+sleep 2
+
 exit 0
