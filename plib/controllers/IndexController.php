@@ -27,16 +27,14 @@ class IndexController extends pm_Controller_Action
     {
         // Set the description text
         $this->view->output_description = $this->addSpanTranslation('output_description', 'description-extension');
-        $this->view->output_description_signup = '';
 
-        if (empty(pm_Settings::get('license_key'))) {
-            $this->view->output_description_signup = $this->addSpanTranslation('output_description_signup', 'description-extension');
-        }
+        $this->setDescriptionLink();
 
         // Init form here
         $form = new pm_Form_Simple();
         $form->addElement('text', 'license_key', ['label' => $this->lmsg('form_license_key'), 'value' => pm_Settings::get('license_key'), 'required' => true, 'validators' => [['NotEmpty', true],],]);
         $form->addElement('text', 'server_name', ['label' => $this->lmsg('form_server_name'), 'value' => pm_Settings::get('server_name'), 'required' => true, 'validators' => [['NotEmpty', true],],]);
+        $form->addElement('text', 'account_id', ['label' => $this->lmsg('form_account_id'), 'value' => pm_Settings::get('account_id'), 'required' => false, 'validators' => [['Digits', true],],]);
         $this->installationType('servers', $form);
         $this->installationType('apm', $form);
         $form->addControlButtons(['sendTitle' => $this->lmsg('form_button_send'), 'cancelLink' => pm_Context::getModulesListUrl(),]);
@@ -62,9 +60,9 @@ class IndexController extends pm_Controller_Action
      *
      * @return string
      */
-    private function addSpanTranslation($language_string, $class_name)
+    private function addSpanTranslation($language_string, $class_name, $language_string_params = array())
     {
-        $translated_string = $this->lmsg($language_string);
+        $translated_string = $this->lmsg($language_string, $language_string_params);
 
         if ($translated_string == '[['.$language_string.']]') {
             $translated_string = '';
@@ -73,6 +71,33 @@ class IndexController extends pm_Controller_Action
         $span_element = '<span class="'.$class_name.'">'.$translated_string.'</span>';
 
         return $span_element;
+    }
+
+    /**
+     * Sets the intro description depending on the set values by the user
+     */
+    private function setDescriptionLink()
+    {
+        $this->view->output_description_link = $this->addSpanTranslation('output_description_signup', 'description-extension');
+        $license_key = pm_Settings::get('license_key');
+
+        if (!empty($license_key)) {
+            $this->view->output_description_link = $this->addSpanTranslation('output_description_link_login', 'description-extension');
+            $account_id = pm_Settings::get('account_id');
+
+            if (!empty($account_id)) {
+                $servers = pm_Settings::get('servers');
+                $apm = pm_Settings::get('apm');
+
+                if (!empty($servers) AND !empty($apm)) {
+                    $this->view->output_description_link = $this->addSpanTranslation('output_description_link_ser_apm', 'description-extension', ['accountid' => $account_id]);
+                } elseif (!empty($servers)) {
+                    $this->view->output_description_link = $this->addSpanTranslation('output_description_link_servers', 'description-extension', ['accountid' => $account_id]);
+                } elseif (!empty($apm)) {
+                    $this->view->output_description_link = $this->addSpanTranslation('output_description_link_apm', 'description-extension', ['accountid' => $account_id]);
+                }
+            }
+        }
     }
 
     /**
@@ -184,6 +209,14 @@ class IndexController extends pm_Controller_Action
             $server_name = preg_replace('/[[:^print:]]/', '', trim($server_name));
             pm_Settings::set('server_name', $server_name);
 
+            $account_id = $form->getValue('account_id');
+
+            if (!empty($account_i)) {
+                $account_id = (int) $account_id;
+            }
+
+            pm_Settings::set('account_id', $account_id);
+
             $this->_status->addMessage('info', $this->lmsg('message_success'));
 
             if ($form->getValue('servers')) {
@@ -216,29 +249,6 @@ class IndexController extends pm_Controller_Action
         }
 
         $this->_helper->json(['redirect' => pm_Context::getBaseUrl()]);
-    }
-
-    /**
-     * Writes installed PHP versions into a file that is used in the uninstallation process
-     *
-     * @param $php_versions
-     */
-    private function saveInstalledPhpVersions($php_versions)
-    {
-        $php_versions_installed = $this->getPleskPhpVersions();
-        $php_versions_selected = explode(':', $php_versions);
-
-        foreach ($php_versions_installed as $php_version => $php_path) {
-            if ($this->checkInstallationState('php_versions_'.str_replace('.', '', $php_version))) {
-                if (!in_array($php_path, $php_versions_selected)) {
-                    $php_versions_selected[] = $php_path;
-                }
-            }
-        }
-
-        $php_versions = implode(':', $php_versions_selected);
-
-        $this->runInstallation('phpversionsuninstall', '', '', $php_versions);
     }
 
     /**
@@ -313,5 +323,28 @@ class IndexController extends pm_Controller_Action
         }
 
         return $php_versions_selected;
+    }
+
+    /**
+     * Writes installed PHP versions into a file that is used in the uninstallation process
+     *
+     * @param $php_versions
+     */
+    private function saveInstalledPhpVersions($php_versions)
+    {
+        $php_versions_installed = $this->getPleskPhpVersions();
+        $php_versions_selected = explode(':', $php_versions);
+
+        foreach ($php_versions_installed as $php_version => $php_path) {
+            if ($this->checkInstallationState('php_versions_'.str_replace('.', '', $php_version))) {
+                if (!in_array($php_path, $php_versions_selected)) {
+                    $php_versions_selected[] = $php_path;
+                }
+            }
+        }
+
+        $php_versions = implode(':', $php_versions_selected);
+
+        $this->runInstallation('phpversionsuninstall', '', '', $php_versions);
     }
 }
