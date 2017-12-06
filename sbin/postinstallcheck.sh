@@ -1,15 +1,5 @@
 #!/bin/bash -e
 
-if [ ! -f /usr/local/psa/var/modules/new-relic/removepackageservers ]
-then
-    if [ ! -f /etc/init.d/newrelic-sysmond ];
-    then
-        echo "1" > "/usr/local/psa/var/modules/new-relic/removepackageservers"
-    else
-        echo "0" > "/usr/local/psa/var/modules/new-relic/removepackageservers"
-    fi
-fi
-
 if [ ! -f /usr/local/psa/var/modules/new-relic/removepackageapm ]
 then
     if [ -f /etc/redhat-release ];

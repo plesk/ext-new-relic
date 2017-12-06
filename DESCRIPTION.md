@@ -3,9 +3,8 @@ New Relic is a software analytics tool suite used by developers, ops, and softwa
 
 With New Relic, you gain access to analytics tools to measure and monitor performance bottlenecks, throughput, network graph, server health and many more – all almost in real-time.
 
-The New Relic Plesk extension seamlessly integrates with your Plesk server, and supports the two most important tools by New Relic:
+The New Relic Plesk extension seamlessly integrates with your Plesk server, and supports one of the most important tools by New Relic:
 
 - APM for Application Performance Monitoring and Management
-- SERVERS for Server Monitoring
 
 Supported operation systems: Ubuntu, Debian, CentOs and Red Hat

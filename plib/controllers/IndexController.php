@@ -1,6 +1,6 @@
 <?php
 
-// Copyright 1999-2016. Parallels IP Holdings GmbH.
+// Copyright 1999-2017. Parallels IP Holdings GmbH.
 
 class IndexController extends pm_Controller_Action
 {
@@ -32,12 +32,44 @@ class IndexController extends pm_Controller_Action
 
         // Init form here
         $form = new pm_Form_Simple();
-        $form->addElement('text', 'license_key', ['label' => $this->lmsg('form_license_key'), 'value' => pm_Settings::get('license_key'), 'required' => true, 'validators' => [['NotEmpty', true],],]);
-        $form->addElement('text', 'server_name', ['label' => $this->lmsg('form_server_name'), 'value' => pm_Settings::get('server_name'), 'required' => true, 'validators' => [['NotEmpty', true],],]);
-        $form->addElement('text', 'account_id', ['label' => $this->lmsg('form_account_id'), 'value' => pm_Settings::get('account_id'), 'required' => false, 'validators' => [['Digits', true],],]);
-        $this->installationType('servers', $form);
+        $form->addElement('text', 'license_key', [
+            'label'      => $this->lmsg('form_license_key'),
+            'value'      => pm_Settings::get('license_key'),
+            'required'   => true,
+            'validators' => [
+                [
+                    'NotEmpty',
+                    true
+                ],
+            ],
+        ]);
+        $form->addElement('text', 'server_name', [
+            'label'      => $this->lmsg('form_server_name'),
+            'value'      => pm_Settings::get('server_name'),
+            'required'   => true,
+            'validators' => [
+                [
+                    'NotEmpty',
+                    true
+                ],
+            ],
+        ]);
+        $form->addElement('text', 'account_id', [
+            'label'      => $this->lmsg('form_account_id'),
+            'value'      => pm_Settings::get('account_id'),
+            'required'   => false,
+            'validators' => [
+                [
+                    'Digits',
+                    true
+                ],
+            ],
+        ]);
         $this->installationType('apm', $form);
-        $form->addControlButtons(['sendTitle' => $this->lmsg('form_button_send'), 'cancelLink' => pm_Context::getModulesListUrl(),]);
+        $form->addControlButtons([
+                                     'sendTitle'  => $this->lmsg('form_button_send'),
+                                     'cancelLink' => pm_Context::getModulesListUrl(),
+                                 ]);
 
         // Process the form - save the license key and run the installation scripts
         if ($this->getRequest()->isPost() && $form->isValid($this->getRequest()->getPost())) {
@@ -86,14 +118,9 @@ class IndexController extends pm_Controller_Action
             $account_id = pm_Settings::get('account_id');
 
             if (!empty($account_id)) {
-                $servers = pm_Settings::get('servers');
                 $apm = pm_Settings::get('apm');
 
-                if (!empty($servers) AND !empty($apm)) {
-                    $this->view->output_description_link = $this->addSpanTranslation('output_description_link_ser_apm', 'description-extension', ['accountid' => $account_id]);
-                } elseif (!empty($servers)) {
-                    $this->view->output_description_link = $this->addSpanTranslation('output_description_link_servers', 'description-extension', ['accountid' => $account_id]);
-                } elseif (!empty($apm)) {
+                if (!empty($apm)) {
                     $this->view->output_description_link = $this->addSpanTranslation('output_description_link_apm', 'description-extension', ['accountid' => $account_id]);
                 }
             }
@@ -110,48 +137,64 @@ class IndexController extends pm_Controller_Action
     {
         $installation_done = $this->checkInstallationState($type);
 
-        if ($type == 'servers') {
-            $form->addElement('description', 'type_servers_logo', ['description' => $this->addSpanTranslation('form_type_servers_logo', 'logo-product-servers'), 'escape' => false]);
-            if ($installation_done == false) {
-                $form->addElement('description', 'servers_install', ['description' => $this->addSpanTranslation('form_type_servers_install', 'product-installed-servers'), 'escape' => false]);
-                $form->addElement('checkbox', 'servers', ['label' => $this->lmsg('form_type_servers'), 'value' => pm_Settings::get('servers'), 'checked' => true]);
-            } else {
-                $form->addElement('description', 'servers_installed', ['description' => $this->addSpanTranslation('form_type_servers_installed', 'product-installed-servers'), 'escape' => false]);
-                $form->addElement('checkbox', 'servers', ['label' => $this->lmsg('form_type_servers_reinstall'), 'value' => '', 'checked' => false]);
-            }
-
-            $form->addElement('description', 'type_servers_description', ['description' => $this->addSpanTranslation('form_type_servers_description', 'description-product'), 'escape' => false]);
-
-            return;
-        }
-
         if ($type == 'apm') {
-            $form->addElement('description', 'type_apm_logo', ['description' => $this->addSpanTranslation('form_type_apm_logo', 'logo-product-apm'), 'escape' => false]);
+            $form->addElement('description', 'type_apm_logo', [
+                'description' => $this->addSpanTranslation('form_type_apm_logo', 'logo-product-apm'),
+                'escape'      => false
+            ]);
 
             if ($installation_done == false) {
-                $form->addElement('description', 'apm_install', ['description' => $this->addSpanTranslation('form_type_apm_install', 'product-installed-apm'), 'escape' => false]);
-                $form->addElement('checkbox', 'apm', ['label' => $this->lmsg('form_type_apm'), 'value' => pm_Settings::get('apm'), 'checked' => true]);
+                $form->addElement('description', 'apm_install', [
+                    'description' => $this->addSpanTranslation('form_type_apm_install', 'product-installed-apm'),
+                    'escape'      => false
+                ]);
+                $form->addElement('checkbox', 'apm', [
+                    'label'   => $this->lmsg('form_type_apm'),
+                    'value'   => pm_Settings::get('apm'),
+                    'checked' => true
+                ]);
             } else {
-                $form->addElement('description', 'apm_installed', ['description' => $this->addSpanTranslation('form_type_apm_installed', 'product-installed-apm'), 'escape' => false]);
-                $form->addElement('checkbox', 'apm', ['label' => $this->lmsg('form_type_apm_reinstall'), 'value' => '', 'checked' => false]);
+                $form->addElement('description', 'apm_installed', [
+                    'description' => $this->addSpanTranslation('form_type_apm_installed', 'product-installed-apm'),
+                    'escape'      => false
+                ]);
+                $form->addElement('checkbox', 'apm', [
+                    'label'   => $this->lmsg('form_type_apm_reinstall'),
+                    'value'   => '',
+                    'checked' => false
+                ]);
             }
 
             $php_versions = $this->getPleskPhpVersions();
 
             if (!empty($php_versions)) {
-                $form->addElement('description', 'type_apm_php_versions', ['description' => $this->addSpanTranslation('form_type_apm_php_versions', 'description-php-versions'), 'escape' => false]);
+                $form->addElement('description', 'type_apm_php_versions', [
+                    'description' => $this->addSpanTranslation('form_type_apm_php_versions', 'description-php-versions'),
+                    'escape'      => false
+                ]);
                 foreach ($php_versions as $php_version => $php_bin_path) {
                     if ($this->checkInstallationState('php_versions_'.str_replace('.', '', $php_version))) {
-                        $form->addElement('checkbox', 'php_versions_'.$php_version, ['label' => $php_version.' ['.$this->lmsg('form_type_apm_php_activated').']', 'value' => '', 'checked' => false]);
+                        $form->addElement('checkbox', 'php_versions_'.$php_version, [
+                            'label'   => $php_version.' ['.$this->lmsg('form_type_apm_php_activated').']',
+                            'value'   => '',
+                            'checked' => false
+                        ]);
 
                         continue;
                     }
 
-                    $form->addElement('checkbox', 'php_versions_'.$php_version, ['label' => $php_version, 'value' => '', 'checked' => true]);
+                    $form->addElement('checkbox', 'php_versions_'.$php_version, [
+                        'label'   => $php_version,
+                        'value'   => '',
+                        'checked' => true
+                    ]);
                 }
             }
 
-            $form->addElement('description', 'type_apm_description', ['description' => $this->addSpanTranslation('form_type_apm_description', 'description-product'), 'escape' => false]);
+            $form->addElement('description', 'type_apm_description', [
+                'description' => $this->addSpanTranslation('form_type_apm_description', 'description-product'),
+                'escape'      => false
+            ]);
         }
     }
 
@@ -218,14 +261,6 @@ class IndexController extends pm_Controller_Action
             pm_Settings::set('account_id', $account_id);
 
             $this->_status->addMessage('info', $this->lmsg('message_success'));
-
-            if ($form->getValue('servers')) {
-                if ($this->runInstallation('servers', $license_key, $server_name)) {
-                    pm_Settings::set('servers', $form->getValue('servers'));
-
-                    $this->_status->addMessage('info', $this->lmsg('message_success_servers'));
-                }
-            }
 
             if ($form->getValue('apm')) {
                 $php_versions = $this->getSelectedPleskPhpVersion();
