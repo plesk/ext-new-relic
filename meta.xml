@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 1999-2018. Plesk International GmbH. -->
 <module>
   <id>new-relic</id>
   <name>New Relic - Application Performance Monitoring</name>
@@ -6,7 +7,7 @@
   <version>1.2.0</version>
   <release>2</release>
   <vendor>Plesk</vendor>
-  <url>http://www.plesk.com</url>
+  <url>https://www.plesk.com</url>
   <os>unix</os>
   <plesk_min_version>12.5.30</plesk_min_version>
 </module>
