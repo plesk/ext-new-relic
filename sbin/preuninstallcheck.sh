@@ -1,76 +1,82 @@
 #!/bin/bash -e
 
-REMOVESERVERS=`cat /usr/local/psa/var/modules/new-relic/removepackageservers`
-
-if [ "$REMOVESERVERS" = "1" ];
+if [ -f /usr/local/psa/var/modules/new-relic/removepackageservers ]
 then
-    if [ -f /etc/init.d/newrelic-sysmond ];
+    REMOVESERVERS=`cat /usr/local/psa/var/modules/new-relic/removepackageservers`
+
+    if [ "$REMOVESERVERS" = "1" ];
     then
-        if [ -f /etc/redhat-release ];
+        if [ -f /etc/init.d/newrelic-sysmond ];
         then
-            yum -y -q remove newrelic-sysmond
-            yum -y -q remove newrelic-repo
-
-            if [ -f /etc/yum.repos.d/newrelic.repo ]
+            if [ -f /etc/redhat-release ];
             then
-                rm /etc/yum.repos.d/newrelic.repo
-            fi
-        else
-            apt-get -qq -y --purge autoremove newrelic-sysmond
+                yum -y -q remove newrelic-sysmond
+                yum -y -q remove newrelic-repo
 
-            if [ -f /etc/apt/sources.list.d/newrelic.list ]
-            then
-                rm /etc/apt/sources.list.d/newrelic.list
+                if [ -f /etc/yum.repos.d/newrelic.repo ]
+                then
+                    rm /etc/yum.repos.d/newrelic.repo
+                fi
+            else
+                apt-get -qq -y --purge autoremove newrelic-sysmond
+
+                if [ -f /etc/apt/sources.list.d/newrelic.list ]
+                then
+                    rm /etc/apt/sources.list.d/newrelic.list
+                fi
             fi
         fi
     fi
+
+    # Add sleep of 6 seconds to avoid process lock issues
+    sleep 6
 fi
 
-# Add sleep of 6 seconds to avoid process lock issues
-sleep 6
-
-REMOVEAPM=`cat /usr/local/psa/var/modules/new-relic/removepackageapm`
-
-if [ "$REMOVEAPM" = "1" ];
+if [ -f /usr/local/psa/var/modules/new-relic/removepackageapm ]
 then
-    if [ -f /etc/redhat-release ];
+    REMOVEAPM=`cat /usr/local/psa/var/modules/new-relic/removepackageapm`
+
+    if [ "$REMOVEAPM" = "1" ];
     then
-        if [ $(rpm -q newrelic-php5 2>/dev/null | grep -c "not installed") -eq 0 ];
+        if [ -f /etc/redhat-release ];
         then
-            NR_INSTALLED_PHPLIST=`cat /usr/local/psa/var/modules/new-relic/removephpversions`
-            export NR_INSTALL_PHPLIST="$NR_INSTALLED_PHPLIST"
-            export NR_INSTALL_SILENT=1
-            newrelic-install purge
-
-            yum -y -q remove newrelic-php5
-            yum -y -q remove newrelic-php5-common
-            yum -y -q remove newrelic-repo
-
-            if [ -f /etc/yum.repos.d/newrelic.repo ]
+            if [ $(rpm -q newrelic-php5 2>/dev/null | grep -c "not installed") -eq 0 ];
             then
-                rm /etc/yum.repos.d/newrelic.repo
+                NR_INSTALLED_PHPLIST=`cat /usr/local/psa/var/modules/new-relic/removephpversions`
+                export NR_INSTALL_PHPLIST="$NR_INSTALLED_PHPLIST"
+                export NR_INSTALL_SILENT=1
+                newrelic-install purge
+
+                yum -y -q remove newrelic-php5
+                yum -y -q remove newrelic-php5-common
+                yum -y -q remove newrelic-repo
+
+                if [ -f /etc/yum.repos.d/newrelic.repo ]
+                then
+                    rm /etc/yum.repos.d/newrelic.repo
+                fi
+
+                service httpd restart
+                plesk bin php_handler --reread
             fi
-
-            service httpd restart
-            plesk bin php_handler --reread
-        fi
-    else
-        if [ $(dpkg-query -W -f='${Status}' newrelic-php5 2>/dev/null | grep -c "ok installed") -eq 1 ];
-        then
-            NR_INSTALLED_PHPLIST=`cat /usr/local/psa/var/modules/new-relic/removephpversions`
-            export NR_INSTALL_PHPLIST="$NR_INSTALLED_PHPLIST"
-            export NR_INSTALL_SILENT=1
-            newrelic-install purge
-
-            apt-get -qq -y --purge autoremove newrelic-php5
-
-            if [ -f /etc/apt/sources.list.d/newrelic.list ]
+        else
+            if [ $(dpkg-query -W -f='${Status}' newrelic-php5 2>/dev/null | grep -c "ok installed") -eq 1 ];
             then
-                rm /etc/apt/sources.list.d/newrelic.list
-            fi
+                NR_INSTALLED_PHPLIST=`cat /usr/local/psa/var/modules/new-relic/removephpversions`
+                export NR_INSTALL_PHPLIST="$NR_INSTALLED_PHPLIST"
+                export NR_INSTALL_SILENT=1
+                newrelic-install purge
 
-            service apache2 restart
-            plesk bin php_handler --reread
+                apt-get -qq -y --purge autoremove newrelic-php5
+
+                if [ -f /etc/apt/sources.list.d/newrelic.list ]
+                then
+                    rm /etc/apt/sources.list.d/newrelic.list
+                fi
+
+                service apache2 restart
+                plesk bin php_handler --reread
+            fi
         fi
     fi
 fi
