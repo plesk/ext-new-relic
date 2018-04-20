@@ -1,5 +1,26 @@
 #!/bin/bash -e
 
+if [ ! -f /usr/local/psa/var/modules/new-relic/removepackageinfrastructure ]
+then
+    if [ -f /etc/redhat-release ];
+    then
+        if [ $(rpm -q newrelic-infra 2>/dev/null | grep -c "not installed") -eq 1 ];
+        then
+            echo "1" > "/usr/local/psa/var/modules/new-relic/removepackageinfrastructure"
+        else
+            echo "0" > "/usr/local/psa/var/modules/new-relic/removepackageinfrastructure"
+        fi
+    else
+        if [ $(dpkg-query -W -f='${Status}' newrelic-infra 2>/dev/null | grep -c "ok installed") -eq 0 ];
+        then
+            echo "1" > "/usr/local/psa/var/modules/new-relic/removepackageinfrastructure"
+        else
+            echo "0" > "/usr/local/psa/var/modules/new-relic/removepackageinfrastructure"
+        fi
+    fi
+fi
+
+
 if [ ! -f /usr/local/psa/var/modules/new-relic/removepackageapm ]
 then
     if [ -f /etc/redhat-release ];

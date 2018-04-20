@@ -11,6 +11,8 @@ class IndexController extends pm_Controller_Action
 
         // Init title for all actions
         $this->view->pageTitle = $this->lmsg('page_title');
+
+        pm_ProductInfo::getOsName();
     }
 
     public function indexAction()
@@ -64,11 +66,12 @@ class IndexController extends pm_Controller_Action
                 ],
             ],
         ]);
+        $this->installationType('infrastructure', $form);
         $this->installationType('apm', $form);
         $form->addControlButtons([
-                                     'sendTitle'  => $this->lmsg('form_button_send'),
-                                     'cancelLink' => pm_Context::getModulesListUrl(),
-                                 ]);
+            'sendTitle'  => $this->lmsg('form_button_send'),
+            'cancelLink' => pm_Context::getModulesListUrl(),
+        ]);
 
         // Process the form - save the license key and run the installation scripts
         if ($this->getRequest()->isPost() && $form->isValid($this->getRequest()->getPost())) {
@@ -95,11 +98,11 @@ class IndexController extends pm_Controller_Action
     {
         $translated_string = $this->lmsg($language_string, $language_string_params);
 
-        if ($translated_string == '[['.$language_string.']]') {
+        if ($translated_string == '[[' . $language_string . ']]') {
             $translated_string = '';
         }
 
-        $span_element = '<span class="'.$class_name.'">'.$translated_string.'</span>';
+        $span_element = '<span class="' . $class_name . '">' . $translated_string . '</span>';
 
         return $span_element;
     }
@@ -117,9 +120,14 @@ class IndexController extends pm_Controller_Action
             $account_id = pm_Settings::get('account_id');
 
             if (!empty($account_id)) {
+                $infrastructure = pm_Settings::get('infrastructure');
                 $apm = pm_Settings::get('apm');
 
-                if (!empty($apm)) {
+                if (!empty($infrastructure) AND !empty($apm)) {
+                    $this->view->output_description_link = $this->addSpanTranslation('output_description_link_ser_apm', 'description-extension', ['accountid' => $account_id]);
+                } elseif (!empty($infrastructure)) {
+                    $this->view->output_description_link = $this->addSpanTranslation('output_description_link_infrastructure', 'description-extension', ['accountid' => $account_id]);
+                } elseif (!empty($apm)) {
                     $this->view->output_description_link = $this->addSpanTranslation('output_description_link_apm', 'description-extension', ['accountid' => $account_id]);
                 }
             }
@@ -129,12 +137,52 @@ class IndexController extends pm_Controller_Action
     /**
      * Adds elements to the pm_Form_Simple object depending on installation type
      *
-     * @param string         $type
-     * @param pm_Form_Simple $form
+     * @param $type
+     * @param $form
+     *
+     * @throws pm_Exception
      */
     private function installationType($type, &$form)
     {
         $installation_done = $this->checkInstallationState($type);
+
+        if ($type == 'infrastructure') {
+            $form->addElement('description', 'type_infrastructure_logo', [
+                'description' => $this->addSpanTranslation('form_type_infrastructure_logo', 'logo-product-infrastructure'),
+                'escape'      => false
+            ]);
+
+            if ($installation_done == false) {
+                $form->addElement('description', 'infrastructure_install', [
+                        'description' => $this->addSpanTranslation('form_type_infrastructure_install', 'product-installed-infrastructure'),
+                        'escape'      => false
+                    ]
+                );
+                $form->addElement('checkbox', 'infrastructure', [
+                    'label'   => $this->lmsg('form_type_infrastructure'),
+                    'value'   => pm_Settings::get('infrastructure'),
+                    'checked' => true
+                ]);
+            } else {
+                $form->addElement('description', 'infrastructure_installed', [
+                    'description' => $this->addSpanTranslation('form_type_infrastructure_installed', 'product-installed-infrastructure'),
+                    'escape'      => false
+                ]);
+                $form->addElement('checkbox', 'infrastructure', [
+                        'label'   => $this->lmsg('form_type_infrastructure_reinstall'),
+                        'value'   => '',
+                        'checked' => false
+                    ]
+                );
+            }
+
+            $form->addElement('description', 'type_infrastructure_description', [
+                'description' => $this->addSpanTranslation('form_type_infrastructure_description', 'description-product'),
+                'escape'      => false
+            ]);
+
+            return;
+        }
 
         if ($type == 'apm') {
             $form->addElement('description', 'type_apm_logo', [
@@ -172,9 +220,9 @@ class IndexController extends pm_Controller_Action
                     'escape'      => false
                 ]);
                 foreach ($php_versions as $php_version => $php_bin_path) {
-                    if ($this->checkInstallationState('php_versions_'.str_replace('.', '', $php_version))) {
-                        $form->addElement('checkbox', 'php_versions_'.$php_version, [
-                            'label'   => $php_version.' ['.$this->lmsg('form_type_apm_php_activated').']',
+                    if ($this->checkInstallationState('php_versions_' . str_replace('.', '', $php_version))) {
+                        $form->addElement('checkbox', 'php_versions_' . $php_version, [
+                            'label'   => $php_version . ' [' . $this->lmsg('form_type_apm_php_activated') . ']',
                             'value'   => '',
                             'checked' => false
                         ]);
@@ -182,7 +230,7 @@ class IndexController extends pm_Controller_Action
                         continue;
                     }
 
-                    $form->addElement('checkbox', 'php_versions_'.$php_version, [
+                    $form->addElement('checkbox', 'php_versions_' . $php_version, [
                         'label'   => $php_version,
                         'value'   => '',
                         'checked' => true
@@ -213,6 +261,7 @@ class IndexController extends pm_Controller_Action
      * Gets all installed Plesk PHP versions with the help of shell script
      *
      * @return array
+     * @throws pm_Exception
      */
     private function getPleskPhpVersions()
     {
@@ -239,6 +288,12 @@ class IndexController extends pm_Controller_Action
      * Processes POST request - after form submission
      *
      * @param $form
+     *
+     * @throws Zend_Controller_Action_Exception
+     * @throws Zend_Db_Table_Exception
+     * @throws Zend_Db_Table_Row_Exception
+     * @throws pm_Exception
+     * @throws pm_Exception_InvalidArgumentException
      */
     private function processPostRequest($form)
     {
@@ -260,6 +315,13 @@ class IndexController extends pm_Controller_Action
             pm_Settings::set('account_id', $account_id);
 
             $this->_status->addMessage('info', $this->lmsg('message_success'));
+
+            if ($form->getValue('infrastructure')) {
+                if ($this->runInstallation('infrastructure', $license_key, $server_name)) {
+                    pm_Settings::set('infrastructure', $form->getValue('infrastructure'));
+                    $this->_status->addMessage('info', $this->lmsg('message_success_infrastructure'));
+                }
+            }
 
             if ($form->getValue('apm')) {
                 $php_versions = $this->getSelectedPleskPhpVersion();
@@ -321,7 +383,7 @@ class IndexController extends pm_Controller_Action
         $options[] = addslashes($server_name);
         $options[] = $php_versions;
 
-        $result = pm_ApiCli::callSbin($type.'.sh', $options, pm_ApiCli::RESULT_FULL);
+        $result = pm_ApiCli::callSbin($type . '.sh', $options, pm_ApiCli::RESULT_FULL);
 
         if ($result['code']) {
             throw new pm_Exception("{$result['stdout']}\n{$result['stderr']}");
@@ -336,6 +398,10 @@ class IndexController extends pm_Controller_Action
      * @param bool $installation
      *
      * @return string
+     * @throws Zend_Db_Table_Exception
+     * @throws Zend_Db_Table_Row_Exception
+     * @throws pm_Exception
+     * @throws pm_Exception_InvalidArgumentException
      */
     private function getSelectedPleskPhpVersion($installation = true)
     {
@@ -344,10 +410,10 @@ class IndexController extends pm_Controller_Action
         $php_versions_installed = $this->getPleskPhpVersions();
 
         foreach ($php_versions_installed as $php_version_installed => $php_bin_path_installed) {
-            if ($this->getRequest()->get('php_versions_'.str_replace('.', '', $php_version_installed))) {
+            if ($this->getRequest()->get('php_versions_' . str_replace('.', '', $php_version_installed))) {
                 $php_versions_selected_array[] = $php_bin_path_installed;
                 if (!empty($installation)) {
-                    pm_Settings::set('php_versions_'.str_replace('.', '', $php_version_installed), true);
+                    pm_Settings::set('php_versions_' . str_replace('.', '', $php_version_installed), true);
                 }
             }
         }
@@ -363,6 +429,8 @@ class IndexController extends pm_Controller_Action
      * Writes installed PHP versions into a file that is used in the uninstallation process
      *
      * @param $php_versions
+     *
+     * @throws pm_Exception
      */
     private function saveInstalledPhpVersions($php_versions)
     {
@@ -370,7 +438,7 @@ class IndexController extends pm_Controller_Action
         $php_versions_selected = explode(':', $php_versions);
 
         foreach ($php_versions_installed as $php_version => $php_path) {
-            if ($this->checkInstallationState('php_versions_'.str_replace('.', '', $php_version))) {
+            if ($this->checkInstallationState('php_versions_' . str_replace('.', '', $php_version))) {
                 if (!in_array($php_path, $php_versions_selected)) {
                     $php_versions_selected[] = $php_path;
                 }

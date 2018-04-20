@@ -1,6 +1,6 @@
 #newrelic {
     color: #474747;
-    font-family: Verdana,Geneva,sans-serif;
+    font-family: Verdana, Geneva, sans-serif;
     font-size: 14px;
     line-height: 1.42857;
 }
@@ -31,11 +31,12 @@
     margin-left: 5px;
 }
 
-#newrelic span.logo-product-servers {
+#newrelic span.logo-product-infrastructure {
     display: inline-block;
     float: left;
     margin-top: 40px;
     width: 330px;
+    min-height: 65px;
 }
 
 #newrelic span.logo-product-apm {
@@ -43,6 +44,7 @@
     float: left;
     margin-top: 15px;
     width: 330px;
+    min-height: 65px;
 }
 
 #newrelic span.logo-reboot_dummy {
@@ -78,7 +80,7 @@
     display: none;
 }
 
-#newrelic .product-installed-servers {
+#newrelic .product-installed-infrastructure {
     font-weight: bold;
     display: inline-block;
     margin-top: 25px;

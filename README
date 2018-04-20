@@ -4,6 +4,6 @@ This extension adds the support of the application performance monitoring tool *
 
 A software analytics tool suite used by developers, ops, and software companies to understand how your applications are performing in development and production.
 
-Supported services: APM
+Supported services: APM, INFRASTRUCTURE
 
 Supported operation systems: Ubuntu, Debian, CentOs and Red Hat

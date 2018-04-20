@@ -1,5 +1,44 @@
 #!/bin/bash -e
 
+if [ -f /usr/local/psa/var/modules/new-relic/removepackageinfrastructure ]
+then
+    REMOVEINFRASTRUCTURE=`cat /usr/local/psa/var/modules/new-relic/removepackageinfrastructure`
+
+    if [ "$REMOVEINFRASTRUCTURE" = "1" ];
+    then
+        if [ -f /etc/redhat-release ];
+        then
+            if [ $(rpm -q newrelic-infra 2>/dev/null | grep -c "not installed") -eq 0 ];
+            then
+                yum -y -q remove newrelic-infra
+
+                if [ -f /etc/yum.repos.d/newrelic-infra.repo ]
+                then
+                    rm -f /etc/yum.repos.d/newrelic-infra.repo
+                fi
+
+                if [ -f /etc/newrelic-infra.yml ]
+                then
+                    rm -f /etc/newrelic-infra.yml
+                fi
+            fi
+        else
+            if [ $(dpkg-query -W -f='${Status}' newrelic-infra 2>/dev/null | grep -c "ok installed") -eq 1 ];
+            then
+                apt-get -qq -y --purge autoremove newrelic-infra
+
+                if [ -f /etc/apt/sources.list.d/newrelic-infra.list ]
+                then
+                    rm -f /etc/apt/sources.list.d/newrelic-infra.list
+                fi
+            fi
+        fi
+    fi
+
+    # Add sleep of 6 seconds to avoid process lock issues
+    sleep 6
+fi
+
 if [ -f /usr/local/psa/var/modules/new-relic/removepackageservers ]
 then
     REMOVESERVERS=`cat /usr/local/psa/var/modules/new-relic/removepackageservers`

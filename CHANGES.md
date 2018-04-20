@@ -1,3 +1,9 @@
+# 1.3.0
+
+* [+] Added "INFRASTRUCTURE" service
+* [*] Assigned "monitoring" category
+* [*] Updated screenshots
+
 # 1.2.0
 
 * [*] Removed "SERVERS" tools due to EOL
