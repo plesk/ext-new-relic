@@ -11,8 +11,6 @@ class IndexController extends pm_Controller_Action
 
         // Init title for all actions
         $this->view->pageTitle = $this->lmsg('page_title');
-
-        pm_ProductInfo::getOsName();
     }
 
     public function indexAction()
