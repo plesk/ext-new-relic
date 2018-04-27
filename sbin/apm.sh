@@ -31,8 +31,34 @@ newrelic-install purge
 newrelic-install install
 
 ### Fix for New Relic installer script
-if [ ! -f /etc/redhat-release ]
+if [ -f /etc/redhat-release ]
 then
+    ### Fix CentOS/RHEL 7 issue - daemon port must be changed due to security restrictions
+    if [ -f /etc/php.d/newrelic.ini ]
+    then
+        rm /etc/php.d/newrelic.ini
+    fi
+
+    if [ $(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release)) -eq 7 ]
+    then
+        IFS=':' read -r -a array <<< "$3"
+
+        for element in "${array[@]}"
+        do
+            phpPath=${element/\/bin/}
+            iniPath=$phpPath/etc/php.d/newrelic.ini
+
+            if [ -f $iniPath ]
+            then
+                sed -i -e "s/;newrelic.daemon.port = \"\/tmp\/.newrelic.sock\"/newrelic.daemon.port = \"\/run\/@.newrelic.sock\"/g" $iniPath
+
+                ### Bonus - Set php version as app name
+                phpVersion=${phpPath/\/opt\/plesk\/php\//}
+                sed -i -e "s/newrelic.appname = \"PHP Application\"/newrelic.appname = \"PLESK PHP $phpVersion\"/g" $iniPath
+            fi
+        done
+    fi
+else
     if [ -f /etc/php/7.0/cli/conf.d/20-newrelic.ini ]
     then
         rm /etc/php/7.0/cli/conf.d/20-newrelic.ini
@@ -72,6 +98,8 @@ else
     service apache2 restart
 fi
 
+### Remove all running daemon processes and reread PHP configuration
+killall newrelic-daemon
 plesk bin php_handler --reread
 
 exit 0
