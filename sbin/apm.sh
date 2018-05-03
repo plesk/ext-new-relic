@@ -1,5 +1,11 @@
 #!/bin/bash -e
 
+### Function to update the newrelic.ini file
+function writeIniFile() {
+    sed -i -e "s/;newrelic.daemon.port = \"\/tmp\/.newrelic.sock\"/newrelic.daemon.port = \"\/run\/@.newrelic.sock\"/g" $1
+    sed -i -e "s/newrelic.appname = \"PHP Application\"/newrelic.appname = \"PLESK PHP $2\"/g" $1
+}
+
 ### Add the New Relic repository and install PHP service
 if [ -f /etc/redhat-release ]
 then
@@ -36,7 +42,7 @@ then
     ### Fix CentOS/RHEL 7 issue - daemon port must be changed due to security restrictions
     if [ -f /etc/php.d/newrelic.ini ]
     then
-        rm /etc/php.d/newrelic.ini
+        writeIniFile '/etc/php.d/newrelic.ini' 'OS version'
     fi
 
     if [ $(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release)) -eq 7 ]
@@ -50,11 +56,8 @@ then
 
             if [ -f $iniPath ]
             then
-                sed -i -e "s/;newrelic.daemon.port = \"\/tmp\/.newrelic.sock\"/newrelic.daemon.port = \"\/run\/@.newrelic.sock\"/g" $iniPath
-
-                ### Bonus - Set php version as app name
                 phpVersion=${phpPath/\/opt\/plesk\/php\//}
-                sed -i -e "s/newrelic.appname = \"PHP Application\"/newrelic.appname = \"PLESK PHP $phpVersion\"/g" $iniPath
+                writeIniFile $iniPath $phpVersion
             fi
         done
     fi
