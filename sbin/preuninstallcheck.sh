@@ -117,6 +117,9 @@ then
                 plesk bin php_handler --reread
             fi
         fi
+
+        # Kill all daemon processes that are currently running after uninstall
+        killall newrelic-daemon
     fi
 fi
 
