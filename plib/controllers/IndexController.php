@@ -210,7 +210,7 @@ class IndexController extends pm_Controller_Action
                 ]);
             }
 
-            $php_versions = $this->getPleskPhpVersions();
+            $php_versions = Modules_NewRelic_Helper::getPleskPhpVersions();
 
             if (!empty($php_versions)) {
                 $form->addElement('description', 'type_apm_php_versions', [
@@ -253,33 +253,6 @@ class IndexController extends pm_Controller_Action
     private function checkInstallationState($type)
     {
         return pm_Settings::get($type);
-    }
-
-    /**
-     * Gets all installed Plesk PHP versions with the help of shell script
-     *
-     * @return array
-     * @throws pm_Exception
-     */
-    private function getPleskPhpVersions()
-    {
-        $php_versions = array();
-
-        $result = pm_ApiCli::callSbin('phpversions.sh', array(), pm_ApiCli::RESULT_FULL);
-
-        if (empty($result['code'] AND !empty($result['stdout']))) {
-            $php_versions_object = json_decode($result['stdout']);
-
-            foreach ($php_versions_object as $php_version) {
-                if (!array_key_exists($php_version->fullVersion, $php_versions)) {
-                    if ($php_version->status == 'enabled') {
-                        $php_versions[$php_version->fullVersion] = substr($php_version->clipath, 0, strrpos($php_version->clipath, '/'));
-                    }
-                }
-            }
-        }
-
-        return $php_versions;
     }
 
     /**
@@ -405,7 +378,7 @@ class IndexController extends pm_Controller_Action
     {
         $php_versions_selected = '';
         $php_versions_selected_array = array();
-        $php_versions_installed = $this->getPleskPhpVersions();
+        $php_versions_installed = Modules_NewRelic_Helper::getPleskPhpVersions();
 
         foreach ($php_versions_installed as $php_version_installed => $php_bin_path_installed) {
             if ($this->getRequest()->get('php_versions_' . str_replace('.', '', $php_version_installed))) {
@@ -432,7 +405,7 @@ class IndexController extends pm_Controller_Action
      */
     private function saveInstalledPhpVersions($php_versions)
     {
-        $php_versions_installed = $this->getPleskPhpVersions();
+        $php_versions_installed = Modules_NewRelic_Helper::getPleskPhpVersions();
         $php_versions_selected = explode(':', $php_versions);
 
         foreach ($php_versions_installed as $php_version => $php_path) {
