@@ -119,7 +119,10 @@ then
         fi
 
         # Kill all daemon processes that are currently running after uninstall
-        killall newrelic-daemon
+        if [ $(ps -C newrelic-daemon | grep -c newrelic-daemon) -gt 0 ];
+        then
+            killall newrelic-daemon &> /dev/null
+        fi
     fi
 fi
 

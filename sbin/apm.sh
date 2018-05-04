@@ -16,15 +16,15 @@ then
 
     yum -y -q install newrelic-php5
 else
+    curl https://download.newrelic.com/548C16BF.gpg | apt-key add -
+
     if [ ! -f /etc/apt/sources.list.d/newrelic.list ]
     then
-            echo deb http://apt.newrelic.com/debian/ newrelic non-free >> /etc/apt/sources.list.d/newrelic.list
+            sh -c 'echo "deb http://apt.newrelic.com/debian/ newrelic non-free" >> /etc/apt/sources.list.d/newrelic.list'
     fi
 
     set -e
     export DEBIAN_FRONTEND=noninteractive
-
-    wget -O - https://download.newrelic.com/548C16BF.gpg | apt-key add -
     apt-get -qq update
     apt-get -qq -y install newrelic-php5
 fi
@@ -102,7 +102,11 @@ else
 fi
 
 ### Remove all running daemon processes and reread PHP configuration
-killall newrelic-daemon
+if [ $(ps -C newrelic-daemon | grep -c newrelic-daemon) -gt 0 ];
+then
+    killall newrelic-daemon &> /dev/null
+fi
+
 plesk bin php_handler --reread
 
 exit 0
